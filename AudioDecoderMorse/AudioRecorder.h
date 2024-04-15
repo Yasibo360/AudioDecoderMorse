@@ -21,7 +21,7 @@ private:
     int sizeBuffer;
     short countBuffers;
     std::vector<WAVEHDR> waveHeaders;
-    std::vector<char*> buffers;
+    std::vector<std::vector<char>> audioBuffers;
 
     static void CALLBACK waveInProc(HWAVEIN hwi, UINT uMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1, DWORD_PTR dwParam2);
     static DWORD WINAPI recordingThreadProc(LPVOID lpParam);
@@ -36,6 +36,6 @@ public:
     bool IsRecording() const;
     void StartRecording();
     void StopRecording();
-    void PrepareAudioBuffer(HWAVEIN hWaveIn, WAVEHDR& waveHdr, int sizeBuffer);
+    void PrepareAudioBuffer(HWAVEIN hWaveIn, WAVEHDR& waveHdr, std::vector<char>& audioBuffer, int _sizebuffer);
     WAVEFORMATEX ConvertSF_InfoToWaveFormatX(const SF_INFO& sfInfo);
 };
