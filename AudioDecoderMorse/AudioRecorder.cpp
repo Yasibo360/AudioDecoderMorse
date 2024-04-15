@@ -228,7 +228,12 @@ DWORD WINAPI AudioRecorder::recordingThreadProc(LPVOID lpParam) {
 			data.push_back(s); // Добавление элемента в вектор short
 		}
 
-
+		std::vector<short> shortData;
+		shortData.reserve(audioData.size() / sizeof(short));
+		for (size_t i = 0; i < audioData.size(); i += 2) {
+			short value = static_cast<short>((audioData[i + 1] << 8) | audioData[i]);
+			shortData.push_back(value);
+		}
 
 
 		recorder->audioQueue.pop();
@@ -237,7 +242,9 @@ DWORD WINAPI AudioRecorder::recordingThreadProc(LPVOID lpParam) {
 		// Запись звуковых данных в выходной файл
 		//recorder->wavReadWrtite.WriteData(reinterpret_cast<short*>(audioData.data()), audioData.size());
 		//recorder->wavReadWrtite.WriteData(&audioData[0], audioData.size());
-		recorder->wavReadWrtite.WriteData(&data[0], audioData.size());
+		//recorder->wavReadWrtite.WriteData(data.data(), audioData.size());
+		sf_write_raw(recorder->wavReadWrtite.file, shortData.data(), shortData.size());
+		//sf_writef_short(recorder->wavReadWrtite.file, shortData.data(), shortData.size());
 	}
 	return 0;
 }
