@@ -3,10 +3,12 @@
 
 #include "framework.h"
 #include "AudioDecoderMorse.h"
+
 #include "MorseСode.h"
 #include "AudioRecorder.h"
 #include "TextOperations.h"
 #include "ControlsID.h"
+
 #include <locale>
 
 #define MAX_LOADSTRING 100
