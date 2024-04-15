@@ -83,6 +83,7 @@ bool WavReaderWriter::OpenFileForWrite(const std::string& nameFile) {
             fprintf(stderr, "Error creating file\n");
             return false;
         }
+        newFile.close();
     }
 
     // Проверяем корректность структуры SF_INFO
@@ -120,7 +121,7 @@ void WavReaderWriter::WriteData(const short* data, size_t length) {
         return;
     }
     //sf_write_raw(file, data, length); // Записать аудиоданные в файл
-    if (sf_writef_short(file, data, length) != static_cast<sf_count_t>(length)) {
+    if (sf_write_short(file, data, length) != static_cast<sf_count_t>(length)) {
        fprintf(stderr, "Error: Failed to write data to file\n");
     }
 }
