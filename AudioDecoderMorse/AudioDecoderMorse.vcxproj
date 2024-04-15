@@ -104,11 +104,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\Yasibo360\vcpkg\installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;sndfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\Yasibo360\vcpkg\installed\x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -138,6 +140,7 @@
     <ClInclude Include="TextOperations.h" />
     <ClInclude Include="WavFileStructures.h" />
     <ClInclude Include="WavFileWriter.h" />
+    <ClInclude Include="WavReaderWriter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AudioDecoderMorse.cpp" />
@@ -145,6 +148,7 @@
     <ClCompile Include="MorseСode.cpp" />
     <ClCompile Include="TextOperations.cpp" />
     <ClCompile Include="WavFileWriter.cpp" />
+    <ClCompile Include="WavReaderWriter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="AudioDecoderMorse.rc" />

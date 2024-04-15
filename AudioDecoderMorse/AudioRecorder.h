@@ -1,6 +1,6 @@
 #pragma once
 
-#include "WavFileWriter.h"
+#include "WavReaderWriter.h"
 
 class AudioRecorder {
 private:
@@ -9,7 +9,7 @@ private:
 
     // Переменные для синхронизации потоков
     bool isRecording;
-    std::queue<std::vector<char>> audioQueue;
+    std::queue<std::vector<short>> audioQueue;
     HANDLE audioQueueMutex;
     HANDLE audioQueueSemaphore;
 
@@ -21,21 +21,21 @@ private:
     int sizeBuffer;
     short countBuffers;
     std::vector<WAVEHDR> waveHeaders;
-    std::vector<char*> buffers;
+    std::vector<std::vector<short>> audioBuffers;
 
     static void CALLBACK waveInProc(HWAVEIN hwi, UINT uMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1, DWORD_PTR dwParam2);
     static DWORD WINAPI recordingThreadProc(LPVOID lpParam);
 
 public:
     // Переменная для работы с файлом WAV
-    WavFileWriter writer;
+    WavReaderWriter wavReadWrtite;
 
-    AudioRecorder();
-    AudioRecorder(int sampleRate, int numChannels, int bitsPerSample, int _sizeBuffer, const std::string& filename);
+    AudioRecorder(int sampleRate, int channels, int bitsPerSample, int _sizeBuffer, const std::string& filename);
     ~AudioRecorder();
 
-    bool IsRecording();
+    bool IsRecording() const;
     void StartRecording();
     void StopRecording();
-    void PrepareAudioBuffer(HWAVEIN hWaveIn, WAVEHDR& waveHdr, int sizeBuffer);
+    void PrepareAudioBuffer(HWAVEIN hWaveIn, WAVEHDR& waveHdr, std::vector<short>& audioBuffer, int _sizebuffer);
+    WAVEFORMATEX ConvertSF_InfoToWaveFormatX(const SF_INFO& sfInfo);
 };

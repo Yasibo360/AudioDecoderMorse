@@ -1,254 +1,259 @@
-#include "AudioRecorder.h"
+п»ї#include "AudioRecorder.h"
 
-// Конструктор класса AudioRecorder
-AudioRecorder::AudioRecorder(int sampleRate = 44100, int numChannels = 2, int bitsPerSample = 16, int _sizeBuffer = 4096, const std::string& _filename = "recorded.wav")
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєР»Р°СЃСЃР° AudioRecorder
+AudioRecorder::AudioRecorder(int sampleRate = 44100, int channels = 2, int _bitsPerSample = 16, int _sizeBuffer = 4096, const std::string& _filename = "recorded.wav")
 	: isRecording(false), countBuffers(4), recordingThread(NULL), recordingThreadId(0) {
 
-	// Инициализация waveFormatX с заданными параметрами
-	writer.wavHeader.fmt.waveFormatX.wFormatTag = WAVE_FORMAT_PCM;
-	writer.wavHeader.fmt.waveFormatX.nSamplesPerSec = sampleRate;
-	writer.wavHeader.fmt.waveFormatX.wBitsPerSample = bitsPerSample;
-	writer.wavHeader.fmt.waveFormatX.nChannels = numChannels;
-	writer.wavHeader.fmt.waveFormatX.cbSize = 0;
-	writer.wavHeader.fmt.waveFormatX.nBlockAlign = (numChannels * bitsPerSample) / 8;
-	writer.wavHeader.fmt.waveFormatX.nAvgBytesPerSec = sampleRate * writer.wavHeader.fmt.waveFormatX.nBlockAlign;
+	wavReadWrtite.SetSF_Info(sampleRate, channels, SF_FORMAT_WAV | SF_FORMAT_PCM_16);
+	WAVEFORMATEX waveFormatX = ConvertSF_InfoToWaveFormatX(wavReadWrtite.GetSF_Info());
 
-	// Инициализация sizeBuffer
-	sizeBuffer = _sizeBuffer;
-	if (sizeBuffer % writer.wavHeader.fmt.waveFormatX.nBlockAlign != 0) {
-		// Если размер буфера не кратен writer.wavHeader.fmt.waveFormatX.nBlockAlign, увеличиваем его до ближайшего кратного
-		sizeBuffer += writer.wavHeader.fmt.waveFormatX.nBlockAlign - (sizeBuffer % writer.wavHeader.fmt.waveFormatX.nBlockAlign);
-	}
+	int bitsPerSample = sizeof(short) * 8;
 
-	// Инициализация поля имени файла
-	writer.fileName = _filename;
+	// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ sizeBuffer
+	//sizeBuffer = _sizeBuffer;
+	sizeBuffer = wavReadWrtite.GetSF_Info().samplerate * wavReadWrtite.GetSF_Info().channels * bitsPerSample / 8;
 
-	// Инициализация векторов заголовков и буферов
+
+	// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РїРѕР»СЏ РёРјРµРЅРё С„Р°Р№Р»Р°
+	wavReadWrtite.SetFileName(_filename);
+
+	// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РІРµРєС‚РѕСЂРѕРІ Р·Р°РіРѕР»РѕРІРєРѕРІ Рё Р±СѓС„РµСЂРѕРІ
 	waveHeaders.resize(countBuffers);
-	buffers.resize(countBuffers);
+	audioBuffers.resize(countBuffers);
 
-	// Открытие устройства записи звука
-	MMRESULT result = waveInOpen(&hWaveIn, WAVE_MAPPER, &writer.wavHeader.fmt.waveFormatX, (DWORD_PTR)waveInProc, (DWORD_PTR)this, CALLBACK_FUNCTION);
+	// РћС‚РєСЂС‹С‚РёРµ СѓСЃС‚СЂРѕР№СЃС‚РІР° Р·Р°РїРёСЃРё Р·РІСѓРєР°
+	MMRESULT result = waveInOpen(&hWaveIn, WAVE_MAPPER, &waveFormatX, (DWORD_PTR)waveInProc, (DWORD_PTR)this, CALLBACK_FUNCTION);
 	if (result != MMSYSERR_NOERROR) {
-		throw std::runtime_error("Ошибка открытия устройства ввода звука!");
+		throw std::runtime_error("РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ СѓСЃС‚СЂРѕР№СЃС‚РІР° РІРІРѕРґР° Р·РІСѓРєР°!");
 	}
 
-	// Создание мьютекса для синхронизации доступа к очереди
+	// РЎРѕР·РґР°РЅРёРµ РјСЊСЋС‚РµРєСЃР° РґР»СЏ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё РґРѕСЃС‚СѓРїР° Рє РѕС‡РµСЂРµРґРё
 	audioQueueMutex = CreateMutex(NULL, FALSE, NULL);
 	if (audioQueueMutex == NULL) {
-		throw std::runtime_error("Ошибка создания мьютекса!");
+		throw std::runtime_error("РћС€РёР±РєР° СЃРѕР·РґР°РЅРёСЏ РјСЊСЋС‚РµРєСЃР°!");
 	}
 
-	// Создание семафора для сигнализации о доступных данных
+	// РЎРѕР·РґР°РЅРёРµ СЃРµРјР°С„РѕСЂР° РґР»СЏ СЃРёРіРЅР°Р»РёР·Р°С†РёРё Рѕ РґРѕСЃС‚СѓРїРЅС‹С… РґР°РЅРЅС‹С…
 	audioQueueSemaphore = CreateSemaphore(NULL, 0, LONG_MAX, NULL);
 	if (audioQueueSemaphore == NULL) {
-		throw std::runtime_error("Ошибка создания семафора!");
+		throw std::runtime_error("РћС€РёР±РєР° СЃРѕР·РґР°РЅРёСЏ СЃРµРјР°С„РѕСЂР°!");
 	}
 }
 
-// Деструктор класса AudioRecorder
+// Р”РµСЃС‚СЂСѓРєС‚РѕСЂ РєР»Р°СЃСЃР° AudioRecorder
 AudioRecorder::~AudioRecorder() {
-	// Если запись активна, остановить ее
+	// Р•СЃР»Рё Р·Р°РїРёСЃСЊ Р°РєС‚РёРІРЅР°, РѕСЃС‚Р°РЅРѕРІРёС‚СЊ РµРµ
 	if (isRecording) {
 		try {
 			StopRecording();
 		}
 		catch (const std::exception& e) {
-			// Логирование ошибки или игнорирование
+			// Р›РѕРіРёСЂРѕРІР°РЅРёРµ РѕС€РёР±РєРё РёР»Рё РёРіРЅРѕСЂРёСЂРѕРІР°РЅРёРµ
 		}
 	}
 
-	// Закрыть устройство записи звука
+	// Р—Р°РєСЂС‹С‚СЊ СѓСЃС‚СЂРѕР№СЃС‚РІРѕ Р·Р°РїРёСЃРё Р·РІСѓРєР°
 	MMRESULT result = waveInClose(hWaveIn);
 	if (result != MMSYSERR_NOERROR) {
-		// Логирование ошибки или игнорирование
+		// Р›РѕРіРёСЂРѕРІР°РЅРёРµ РѕС€РёР±РєРё РёР»Рё РёРіРЅРѕСЂРёСЂРѕРІР°РЅРёРµ
 	}
-
-	// Освободить память, выделенную для буферов
-	for (char* buffer : buffers) {
+	
+	for (auto& buffer : audioBuffers) {
+		buffer.clear();
+	}
+	
+	/*
+	// РћСЃРІРѕР±РѕРґРёС‚СЊ РїР°РјСЏС‚СЊ, РІС‹РґРµР»РµРЅРЅСѓСЋ РґР»СЏ Р±СѓС„РµСЂРѕРІ
+	for (const auto& buffer : buffers) {
 		delete[] buffer;
 	}
-	buffers.clear(); // Очистить вектор буферов
+	*/
+	audioBuffers.clear(); // РћС‡РёСЃС‚РёС‚СЊ РІРµРєС‚РѕСЂ Р±СѓС„РµСЂРѕРІ
 	waveHeaders.clear();
 
-	// Закрыть мьютекс и семафор
+	// Р—Р°РєСЂС‹С‚СЊ РјСЊСЋС‚РµРєСЃ Рё СЃРµРјР°С„РѕСЂ
 	if (audioQueueMutex != NULL) {
 		CloseHandle(audioQueueMutex);
-		audioQueueMutex = NULL; // Сбросить дескриптор мьютекса
+		audioQueueMutex = NULL; // РЎР±СЂРѕСЃРёС‚СЊ РґРµСЃРєСЂРёРїС‚РѕСЂ РјСЊСЋС‚РµРєСЃР°
 	}
 
 	if (audioQueueSemaphore != NULL) {
 		CloseHandle(audioQueueSemaphore);
-		audioQueueSemaphore = NULL; // Сбросить дескриптор семафора
+		audioQueueSemaphore = NULL; // РЎР±СЂРѕСЃРёС‚СЊ РґРµСЃРєСЂРёРїС‚РѕСЂ СЃРµРјР°С„РѕСЂР°
 	}
 
-	// Закрыть поток записи, если он был создан
+	// Р—Р°РєСЂС‹С‚СЊ РїРѕС‚РѕРє Р·Р°РїРёСЃРё, РµСЃР»Рё РѕРЅ Р±С‹Р» СЃРѕР·РґР°РЅ
 	if (recordingThread != NULL) {
 		WaitForSingleObject(recordingThread, INFINITE);
 		CloseHandle(recordingThread);
-		recordingThread = NULL; // Сбросить дескриптор потока
+		recordingThread = NULL; // РЎР±СЂРѕСЃРёС‚СЊ РґРµСЃРєСЂРёРїС‚РѕСЂ РїРѕС‚РѕРєР°
 	}
 }
 
-bool AudioRecorder::IsRecording()
-{
+bool AudioRecorder::IsRecording() const {
 	return isRecording;
 };
 
-// Метод для начала записи звука
+// РњРµС‚РѕРґ РґР»СЏ РЅР°С‡Р°Р»Р° Р·Р°РїРёСЃРё Р·РІСѓРєР°
 void AudioRecorder::StartRecording() {
-	// Проверка, не идет ли сейчас запись
+	// РџСЂРѕРІРµСЂРєР°, РЅРµ РёРґРµС‚ Р»Рё СЃРµР№С‡Р°СЃ Р·Р°РїРёСЃСЊ
 	if (isRecording) {
-		throw std::runtime_error("Уже записывается!");
+		throw std::runtime_error("РЈР¶Рµ Р·Р°РїРёСЃС‹РІР°РµС‚СЃСЏ!");
 	}
+	
+	// РћС‚РєСЂС‹РІР°РµРј С„Р°Р№Р» РґР»СЏ Р·Р°РїРёСЃРё РґР°РЅРЅС‹С…
+	wavReadWrtite.OpenFileForWrite(wavReadWrtite.GetFileName());
 
-	// Открываем файл для записи данных
-	writer.outFile.open(writer.fileName, std::ios::binary);
-	if (!writer.outFile.is_open()) {
-		throw std::runtime_error("Ошибка открытия файла для записи!");
-	}
-
-	// Пропускаем заголовок
-	writer.outFile.seekp(44, std::ios::beg);
-
-	// Выделение памяти и подготовка заголовков буферов
+	// Р’С‹РґРµР»РµРЅРёРµ РїР°РјСЏС‚Рё Рё РїРѕРґРіРѕС‚РѕРІРєР° Р·Р°РіРѕР»РѕРІРєРѕРІ Р±СѓС„РµСЂРѕРІ
 	for (int i = 0; i < countBuffers; ++i) {
-		PrepareAudioBuffer(hWaveIn, waveHeaders[i], sizeBuffer);
+		PrepareAudioBuffer(hWaveIn, waveHeaders[i], audioBuffers[i], sizeBuffer);
 	}
 
-	// Начало записи
+	// РќР°С‡Р°Р»Рѕ Р·Р°РїРёСЃРё
 	waveInStart(hWaveIn);
 	isRecording = true;
 
-	// Запуск потока записи
+	// Р—Р°РїСѓСЃРє РїРѕС‚РѕРєР° Р·Р°РїРёСЃРё
 	recordingThread = CreateThread(NULL, 0, recordingThreadProc, this, 0, &recordingThreadId);
 }
 
-// Метод для остановки записи звука
+// РњРµС‚РѕРґ РґР»СЏ РѕСЃС‚Р°РЅРѕРІРєРё Р·Р°РїРёСЃРё Р·РІСѓРєР°
 void AudioRecorder::StopRecording() {
 	if (!isRecording) {
 		return;
 	}
 
-	// Сигнал потоку записи о необходимости завершения
+	// РћСЃС‚Р°РЅРѕРІРєР° Рё Р·Р°РєСЂС‹С‚РёРµ СѓСЃС‚СЂРѕР№СЃС‚РІР° Р·Р°РїРёСЃРё Р·РІСѓРєР°
+	MMRESULT result = waveInStop(hWaveIn);
+	if (result != MMSYSERR_NOERROR) {
+		// РћР±СЂР°Р±РѕС‚РєР° РѕС€РёР±РєРё
+	}
+
+	// РЎРёРіРЅР°Р» РїРѕС‚РѕРєСѓ Р·Р°РїРёСЃРё Рѕ РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё Р·Р°РІРµСЂС€РµРЅРёСЏ
 	isRecording = false;
 	ReleaseSemaphore(audioQueueSemaphore, 1, NULL);
 
-	// Ожидание завершения потока записи
+	// РћР¶РёРґР°РЅРёРµ Р·Р°РІРµСЂС€РµРЅРёСЏ РїРѕС‚РѕРєР° Р·Р°РїРёСЃРё
 	WaitForSingleObject(recordingThread, INFINITE);
 
-	// Освобождение буферов
+
+	// РћСЃРІРѕР±РѕР¶РґРµРЅРёРµ Р±СѓС„РµСЂРѕРІ
 	for (const auto& header : waveHeaders) {
 		waveInUnprepareHeader(hWaveIn, (LPWAVEHDR)&header, sizeof(WAVEHDR));
 	}
 
+	for (auto& buffer : audioBuffers) {
+		buffer.clear();
+	}
+
+	/*
 	for (const auto& buffer : buffers) {
 		delete[] buffer;
 	}
-
-	// Остановка и закрытие устройства записи звука
-	MMRESULT result = waveInStop(hWaveIn);
-	if (result != MMSYSERR_NOERROR) {
-		// Обработка ошибки
+	*/
+	
+	
+	// Р—Р°РєСЂС‹С‚СЊ РїРѕС‚РѕРє Р·Р°РїРёСЃРё, РµСЃР»Рё РѕРЅ Р±С‹Р» СЃРѕР·РґР°РЅ
+	if (recordingThread != NULL) {
+		WaitForSingleObject(recordingThread, INFINITE);
+		CloseHandle(recordingThread);
+		recordingThread = NULL; // РЎР±СЂРѕСЃРёС‚СЊ РґРµСЃРєСЂРёРїС‚РѕСЂ РїРѕС‚РѕРєР°
 	}
 
-	// Считаем размер блока данных
-	uint32_t sizeDataFile;
-	sizeDataFile = writer.GetSizeFile();
-
-	// Заполнение оставшихся полей в структуре заголовка файла WAV
-	writer.wavHeader.riff.chunkSize = sizeDataFile
-		- sizeof(writer.wavHeader.riff.chunkID)
-		- sizeof(writer.wavHeader.riff.format);
-
-	writer.wavHeader.data.subChunk2Size = sizeDataFile
-		- sizeof(writer.wavHeader.riff)
-		- sizeof(writer.wavHeader.fmt.subchunk1Id)
-		- sizeof(writer.wavHeader.fmt.subchunk1Size)
-		- sizeof(writer.wavHeader.fmt.waveFormatX)
-		+ sizeof(writer.wavHeader.fmt.waveFormatX.cbSize)
-		- sizeof(writer.wavHeader.data.subChunk2ID)
-		- sizeof(writer.wavHeader.data.subChunk2Size);
-
-	// Запись заголовка WAV файла
-	writer.WriteHeader(writer.wavHeader);
-
-	// Закрытие файла для записи
-	writer.outFile.close();
+	// Р—Р°РєСЂС‹С‚РёРµ С„Р°Р№Р»Р° РґР»СЏ Р·Р°РїРёСЃРё
+	wavReadWrtite.CloseFile();
 }
 
-// Функция для подготовки буфера для записи звука
-void AudioRecorder::PrepareAudioBuffer(HWAVEIN hWaveIn, WAVEHDR& waveHdr, int sizeBuffer) {
-	// Выделение памяти для буфера
-	char* buffer = new char[sizeBuffer]; // Размер буфера должен быть кратным wfx.nBlockAlign
-	waveHdr.lpData = (LPSTR)buffer;
-	if (waveHdr.lpData == NULL) {
-		return; // Не удалось выделить память
-	}
+// Р¤СѓРЅРєС†РёСЏ РґР»СЏ РїРѕРґРіРѕС‚РѕРІРєРё Р±СѓС„РµСЂР° РґР»СЏ Р·Р°РїРёСЃРё Р·РІСѓРєР°
+void AudioRecorder::PrepareAudioBuffer(HWAVEIN hWaveIn, WAVEHDR& waveHdr, std::vector<short>& audioBuffer, int _sizebuffer) {
+	// Р’С‹РґРµР»РµРЅРёРµ РїР°РјСЏС‚Рё РґР»СЏ Р±СѓС„РµСЂР°
+	audioBuffer.clear();
+	audioBuffer.resize(_sizebuffer);
 
-	// Заполнение структуры WAVEHDR
-	waveHdr.dwBufferLength = sizeBuffer;
+	// Р—Р°РїРѕР»РЅРµРЅРёРµ СЃС‚СЂСѓРєС‚СѓСЂС‹ WAVEHDR
+	waveHdr.lpData = reinterpret_cast<LPSTR>(audioBuffer.data());
+	waveHdr.dwBufferLength = _sizebuffer; // Р Р°Р·РјРµСЂ Р±СѓС„РµСЂР° РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РєСЂР°С‚РЅС‹Рј wfx.nBlockAlign
 	waveHdr.dwBytesRecorded = 0;
-	waveHdr.dwUser = 0;
+	waveHdr.dwUser = reinterpret_cast<DWORD_PTR>(&audioBuffer);
 	waveHdr.dwFlags = 0;
 	waveHdr.dwLoops = 0;
-	waveHdr.lpNext = 0;
+	waveHdr.lpNext = nullptr;
 	waveHdr.reserved = 0;
 
-	// Подготовка буфера
+	// РџРѕРґРіРѕС‚РѕРІРєР° Р±СѓС„РµСЂР°
 	MMRESULT result = waveInPrepareHeader(hWaveIn, &waveHdr, sizeof(WAVEHDR));
 	if (result != MMSYSERR_NOERROR) {
-		delete[] waveHdr.lpData; // Освобождение выделенной памяти
-		return; // Ошибка при подготовке буфера
+		//delete[] buffer; // РћСЃРІРѕР±РѕР¶РґРµРЅРёРµ РІС‹РґРµР»РµРЅРЅРѕР№ РїР°РјСЏС‚Рё
+		return; // РћС€РёР±РєР° РїСЂРё РїРѕРґРіРѕС‚РѕРІРєРµ Р±СѓС„РµСЂР°
 	}
 
-	// Добавление буфера в очередь записи
+	// Р”РѕР±Р°РІР»РµРЅРёРµ Р±СѓС„РµСЂР° РІ РѕС‡РµСЂРµРґСЊ Р·Р°РїРёСЃРё
 	result = waveInAddBuffer(hWaveIn, &waveHdr, sizeof(WAVEHDR));
 	if (result != MMSYSERR_NOERROR) {
-		waveInUnprepareHeader(hWaveIn, &waveHdr, sizeof(WAVEHDR)); // Отмена подготовки буфера
-		delete[] waveHdr.lpData; // Освобождение выделенной памяти
-		return; // Ошибка при добавлении буфера в очередь
+		waveInUnprepareHeader(hWaveIn, &waveHdr, sizeof(WAVEHDR)); // РћС‚РјРµРЅР° РїРѕРґРіРѕС‚РѕРІРєРё Р±СѓС„РµСЂР°
+		//delete[] buffer; // РћСЃРІРѕР±РѕР¶РґРµРЅРёРµ РІС‹РґРµР»РµРЅРЅРѕР№ РїР°РјСЏС‚Рё
+		return; // РћС€РёР±РєР° РїСЂРё РґРѕР±Р°РІР»РµРЅРёРё Р±СѓС„РµСЂР° РІ РѕС‡РµСЂРµРґСЊ
 	}
 
-	return; // Буфер успешно подготовлен
+	return; // Р‘СѓС„РµСЂ СѓСЃРїРµС€РЅРѕ РїРѕРґРіРѕС‚РѕРІР»РµРЅ
 }
 
-// Статический обработчик звука, используемый для записи звука
+WAVEFORMATEX AudioRecorder::ConvertSF_InfoToWaveFormatX(const SF_INFO& sfInfo) {
+	WAVEFORMATEX waveFormatX{};
+	
+	waveFormatX.wFormatTag = WAVE_FORMAT_PCM; // РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ PCM С„РѕСЂРјР°С‚
+	waveFormatX.nSamplesPerSec = sfInfo.samplerate;
+	waveFormatX.wBitsPerSample = sizeof(short) * 8;
+	waveFormatX.nChannels = sfInfo.channels;
+	waveFormatX.cbSize = 0; // РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 0
+	waveFormatX.nBlockAlign = (waveFormatX.nChannels * waveFormatX.wBitsPerSample) / 8;
+	waveFormatX.nAvgBytesPerSec = waveFormatX.nSamplesPerSec * waveFormatX.nBlockAlign;
+
+	return waveFormatX;
+}
+
+// РЎС‚Р°С‚РёС‡РµСЃРєРёР№ РѕР±СЂР°Р±РѕС‚С‡РёРє Р·РІСѓРєР°, РёСЃРїРѕР»СЊР·СѓРµРјС‹Р№ РґР»СЏ Р·Р°РїРёСЃРё Р·РІСѓРєР°
 void CALLBACK AudioRecorder::waveInProc(HWAVEIN hwi, UINT uMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1, DWORD_PTR dwParam2) {
 	if (uMsg == WIM_DATA) {
 		AudioRecorder* recorder = reinterpret_cast<AudioRecorder*>(dwInstance);
 		WAVEHDR* waveHdr = reinterpret_cast<WAVEHDR*>(dwParam1);
+		std::vector<short>* audioData = reinterpret_cast<std::vector<short>*>(waveHdr->dwUser);
 
 		if (waveHdr->dwBytesRecorded > 0) {
 			WaitForSingleObject(recorder->audioQueueMutex, INFINITE);
-			recorder->audioQueue.push(std::vector<char>(waveHdr->lpData, waveHdr->lpData + waveHdr->dwBytesRecorded));
+			recorder->audioQueue.push(*audioData);
 			ReleaseMutex(recorder->audioQueueMutex);
-			ReleaseSemaphore(recorder->audioQueueSemaphore, 1, NULL); // Сигнал о доступных данных
+			ReleaseSemaphore(recorder->audioQueueSemaphore, 1, NULL); // РЎРёРіРЅР°Р» Рѕ РґРѕСЃС‚СѓРїРЅС‹С… РґР°РЅРЅС‹С…
 		}
 
-		// Подготовка и добавление буфера обратно в очередь
-		recorder->PrepareAudioBuffer(recorder->hWaveIn, *waveHdr, waveHdr->dwBufferLength);
+		// РџРѕРґРіРѕС‚РѕРІРєР° Рё РґРѕР±Р°РІР»РµРЅРёРµ Р±СѓС„РµСЂР° РѕР±СЂР°С‚РЅРѕ РІ РѕС‡РµСЂРµРґСЊ
+		recorder->PrepareAudioBuffer(recorder->hWaveIn, *waveHdr, *audioData, waveHdr->dwBufferLength);
 	}
 }
 
-// Статический метод, используемый для записи звука в файл
+// РЎС‚Р°С‚РёС‡РµСЃРєРёР№ РјРµС‚РѕРґ, РёСЃРїРѕР»СЊР·СѓРµРјС‹Р№ РґР»СЏ Р·Р°РїРёСЃРё Р·РІСѓРєР° РІ С„Р°Р№Р»
 DWORD WINAPI AudioRecorder::recordingThreadProc(LPVOID lpParam) {
 	AudioRecorder* recorder = reinterpret_cast<AudioRecorder*>(lpParam);
 	while (recorder->isRecording) {
-		// Ожидание доступных данных в очереди
+		// РћР¶РёРґР°РЅРёРµ РґРѕСЃС‚СѓРїРЅС‹С… РґР°РЅРЅС‹С… РІ РѕС‡РµСЂРµРґРё
 		WaitForSingleObject(recorder->audioQueueSemaphore, INFINITE);
 		if (!recorder->isRecording) {
-			break; // Выход из потока, если запись остановлена
+			break; // Р’С‹С…РѕРґ РёР· РїРѕС‚РѕРєР°, РµСЃР»Рё Р·Р°РїРёСЃСЊ РѕСЃС‚Р°РЅРѕРІР»РµРЅР°
 		}
 
-		// Получение звуковых данных из очереди
+		// РџРѕР»СѓС‡РµРЅРёРµ Р·РІСѓРєРѕРІС‹С… РґР°РЅРЅС‹С… РёР· РѕС‡РµСЂРµРґРё
 		WaitForSingleObject(recorder->audioQueueMutex, INFINITE);
-		std::vector<char> audioData = recorder->audioQueue.front();
-		recorder->audioQueue.pop();
-		ReleaseMutex(recorder->audioQueueMutex);
+		
+		std::vector<short> audioData;
+		if (!recorder->audioQueue.empty()) {
+			audioData = recorder->audioQueue.front();
+			recorder->audioQueue.pop();
 
-		// Запись звуковых данных в выходной файл
-		recorder->writer.outFile.write(audioData.data(), audioData.size());
+			// Р—Р°РїРёСЃСЊ Р·РІСѓРєРѕРІС‹С… РґР°РЅРЅС‹С… РІ РІС‹С…РѕРґРЅРѕР№ С„Р°Р№Р»		
+			//recorder->wavReadWrtite.WriteData(audioData.data(), recorder->wavReadWrtite.GetSF_Info().samplerate * recorder->wavReadWrtite.GetSF_Info().channels);
+			recorder->wavReadWrtite.WriteData(audioData.data(), audioData.size() / 2);
+		}				
+		ReleaseMutex(recorder->audioQueueMutex);		
 	}
 	return 0;
 }
