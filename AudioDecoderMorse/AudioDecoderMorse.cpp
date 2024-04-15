@@ -22,7 +22,7 @@ LPCWSTR szWndClassPane;
 
 // Мои глобальные переменные
 MorseСode morse;
-AudioRecorder recorder(44100, 2, 16, 4096, "recorded.wav");
+AudioRecorder recorder(44100, 1, 16, 4096, "recorded.wav");
 
 // Отправить объявления функций, включенных в этот модуль кода:
 ATOM MyRegisterClass(HINSTANCE hInstance, WNDPROC WndProc, HBRUSH hbrBackground, LPCUWSTR szWindowClass);
