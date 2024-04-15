@@ -8,14 +8,15 @@ AudioRecorder::AudioRecorder(int sampleRate = 44100, int channels = 2, int bitsP
 	WAVEFORMATEX waveFormatX = ConvertSF_InfoToWaveFormatX(wavReadWrtite.GetSF_Info());
 
 	// Инициализация sizeBuffer
-	sizeBuffer = _sizeBuffer;
+	//sizeBuffer = _sizeBuffer;
+	sizeBuffer = wavReadWrtite.GetSF_Info().samplerate * wavReadWrtite.GetSF_Info().channels * (sizeof(short) * 8) / 8;
 
 	// Инициализация поля имени файла
 	wavReadWrtite.SetFileName(_filename);
 
 	// Инициализация векторов заголовков и буферов
 	waveHeaders.resize(countBuffers);
-	buffers.resize(countBuffers);
+	audioBuffers.resize(countBuffers);
 
 	// Открытие устройства записи звука
 	MMRESULT result = waveInOpen(&hWaveIn, WAVE_MAPPER, &waveFormatX, (DWORD_PTR)waveInProc, (DWORD_PTR)this, CALLBACK_FUNCTION);
@@ -53,12 +54,13 @@ AudioRecorder::~AudioRecorder() {
 	if (result != MMSYSERR_NOERROR) {
 		// Логирование ошибки или игнорирование
 	}
-
+	/*
 	// Освободить память, выделенную для буферов
-	for (char* buffer : buffers) {
+	for (const auto& buffer : buffers) {
 		delete[] buffer;
 	}
-	buffers.clear(); // Очистить вектор буферов
+	*/
+	audioBuffers.clear(); // Очистить вектор буферов
 	waveHeaders.clear();
 
 	// Закрыть мьютекс и семафор
@@ -96,7 +98,7 @@ void AudioRecorder::StartRecording() {
 
 	// Выделение памяти и подготовка заголовков буферов
 	for (int i = 0; i < countBuffers; ++i) {
-		PrepareAudioBuffer(hWaveIn, waveHeaders[i], sizeBuffer);
+		PrepareAudioBuffer(hWaveIn, waveHeaders[i], audioBuffers[i], sizeBuffer);
 	}
 
 	// Начало записи
@@ -124,11 +126,11 @@ void AudioRecorder::StopRecording() {
 	for (const auto& header : waveHeaders) {
 		waveInUnprepareHeader(hWaveIn, (LPWAVEHDR)&header, sizeof(WAVEHDR));
 	}
-
+	/*
 	for (const auto& buffer : buffers) {
 		delete[] buffer;
 	}
-
+	*/
 	// Остановка и закрытие устройства записи звука
 	MMRESULT result = waveInStop(hWaveIn);
 	if (result != MMSYSERR_NOERROR) {
@@ -140,27 +142,23 @@ void AudioRecorder::StopRecording() {
 }
 
 // Функция для подготовки буфера для записи звука
-void AudioRecorder::PrepareAudioBuffer(HWAVEIN hWaveIn, WAVEHDR& waveHdr, int sizeBuffer) {
+void AudioRecorder::PrepareAudioBuffer(HWAVEIN hWaveIn, WAVEHDR& waveHdr, std::vector<char>& audioBuffer, int _sizebuffer) {
 	// Выделение памяти для буфера
-	char* buffer = new char[sizeBuffer]; // Размер буфера должен быть кратным wfx.nBlockAlign
-	waveHdr.lpData = (LPSTR)buffer;
-	if (waveHdr.lpData == NULL) {
-		return; // Не удалось выделить память
-	}
-
+	audioBuffer.resize(_sizebuffer);
 	// Заполнение структуры WAVEHDR
-	waveHdr.dwBufferLength = sizeBuffer * sizeof(char);
+	waveHdr.lpData = reinterpret_cast<LPSTR>(audioBuffer.data());
+	waveHdr.dwBufferLength = _sizebuffer; // Размер буфера должен быть кратным wfx.nBlockAlign
 	waveHdr.dwBytesRecorded = 0;
-	waveHdr.dwUser = 0;
+	waveHdr.dwUser = reinterpret_cast<DWORD_PTR>(&audioBuffer);
 	waveHdr.dwFlags = 0;
 	waveHdr.dwLoops = 0;
-	waveHdr.lpNext = 0;
+	waveHdr.lpNext = nullptr;
 	waveHdr.reserved = 0;
 
 	// Подготовка буфера
 	MMRESULT result = waveInPrepareHeader(hWaveIn, &waveHdr, sizeof(WAVEHDR));
 	if (result != MMSYSERR_NOERROR) {
-		delete[] waveHdr.lpData; // Освобождение выделенной памяти
+		//delete[] buffer; // Освобождение выделенной памяти
 		return; // Ошибка при подготовке буфера
 	}
 
@@ -168,7 +166,7 @@ void AudioRecorder::PrepareAudioBuffer(HWAVEIN hWaveIn, WAVEHDR& waveHdr, int si
 	result = waveInAddBuffer(hWaveIn, &waveHdr, sizeof(WAVEHDR));
 	if (result != MMSYSERR_NOERROR) {
 		waveInUnprepareHeader(hWaveIn, &waveHdr, sizeof(WAVEHDR)); // Отмена подготовки буфера
-		delete[] waveHdr.lpData; // Освобождение выделенной памяти
+		//delete[] buffer; // Освобождение выделенной памяти
 		return; // Ошибка при добавлении буфера в очередь
 	}
 
@@ -180,7 +178,7 @@ WAVEFORMATEX AudioRecorder::ConvertSF_InfoToWaveFormatX(const SF_INFO& sfInfo) {
 	
 	waveFormatX.wFormatTag = WAVE_FORMAT_PCM; // По умолчанию PCM формат
 	waveFormatX.nSamplesPerSec = sfInfo.samplerate;
-	waveFormatX.wBitsPerSample = sizeof(char) * 8;
+	waveFormatX.wBitsPerSample = sizeof(short) * 8;
 	waveFormatX.nChannels = sfInfo.channels;
 	waveFormatX.cbSize = 0; // По умолчанию 0
 	waveFormatX.nBlockAlign = (waveFormatX.nChannels * waveFormatX.wBitsPerSample) / 8;
@@ -194,16 +192,18 @@ void CALLBACK AudioRecorder::waveInProc(HWAVEIN hwi, UINT uMsg, DWORD_PTR dwInst
 	if (uMsg == WIM_DATA) {
 		AudioRecorder* recorder = reinterpret_cast<AudioRecorder*>(dwInstance);
 		WAVEHDR* waveHdr = reinterpret_cast<WAVEHDR*>(dwParam1);
+		std::vector<char>* audioData = reinterpret_cast<std::vector<char>*>(waveHdr->dwUser);
 
 		if (waveHdr->dwBytesRecorded > 0) {
 			WaitForSingleObject(recorder->audioQueueMutex, INFINITE);
-			recorder->audioQueue.push(std::vector<char>(waveHdr->lpData, waveHdr->lpData + waveHdr->dwBytesRecorded));
+			//recorder->audioQueue.push(std::vector<short>(waveHdr->lpData, waveHdr->lpData + waveHdr->dwBytesRecorded));
+			recorder->audioQueue.push(*audioData);
 			ReleaseMutex(recorder->audioQueueMutex);
 			ReleaseSemaphore(recorder->audioQueueSemaphore, 1, NULL); // Сигнал о доступных данных
 		}
 
 		// Подготовка и добавление буфера обратно в очередь
-		recorder->PrepareAudioBuffer(recorder->hWaveIn, *waveHdr, waveHdr->dwBufferLength);
+		recorder->PrepareAudioBuffer(recorder->hWaveIn, *waveHdr, *audioData, waveHdr->dwBufferLength);
 	}
 }
 
@@ -221,29 +221,26 @@ DWORD WINAPI AudioRecorder::recordingThreadProc(LPVOID lpParam) {
 		WaitForSingleObject(recorder->audioQueueMutex, INFINITE);
 		std::vector<char> audioData = recorder->audioQueue.front();
 		
-		
-		std::vector<short> data;
-		for (char c : audioData) {
-			short s = (c); // Преобразование char в short
-			data.push_back(s); // Добавление элемента в вектор short
-		}
 
+
+		/*
 		std::vector<short> shortData;
 		shortData.reserve(audioData.size() / sizeof(short));
 		for (size_t i = 0; i < audioData.size(); i += 2) {
 			short value = static_cast<short>((audioData[i + 1] << 8) | audioData[i]);
 			shortData.push_back(value);
 		}
-
+		*/
 
 		recorder->audioQueue.pop();
 		ReleaseMutex(recorder->audioQueueMutex);
 
 		// Запись звуковых данных в выходной файл
-		//recorder->wavReadWrtite.WriteData(reinterpret_cast<short*>(audioData.data()), audioData.size());
-		//recorder->wavReadWrtite.WriteData(&audioData[0], audioData.size());
+		recorder->wavReadWrtite.WriteData(reinterpret_cast<short*>(audioData.data()), audioData.size());
+		//recorder->wavReadWrtite.WriteData(audioData.data(), audioData.size());
 		//recorder->wavReadWrtite.WriteData(data.data(), audioData.size());
-		sf_write_raw(recorder->wavReadWrtite.file, shortData.data(), shortData.size());
+
+		//sf_write_raw(recorder->wavReadWrtite.file, shortData.data(), shortData.size());
 		//sf_writef_short(recorder->wavReadWrtite.file, shortData.data(), shortData.size());
 	}
 	return 0;
