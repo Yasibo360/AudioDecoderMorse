@@ -13,7 +13,7 @@
 class WavReaderWriter
 {
 private:
-    
+    SNDFILE* file;
     SF_INFO sfInfo;
     std::string fileName;
     bool fileOpenedForRead;
@@ -25,7 +25,7 @@ public:
     
     void SetSF_Info(int samplerate, int channels, int format, int sections = 0, int seekable = 1);
     SF_INFO GetSF_Info() const;
-    SNDFILE* file;
+    
     bool OpenFileForRead(const std::string& nameFile);
     bool OpenFileForWrite(const std::string& nameFile);
 

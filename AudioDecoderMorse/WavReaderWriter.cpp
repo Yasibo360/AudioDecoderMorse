@@ -120,7 +120,7 @@ void WavReaderWriter::WriteData(const short* data, size_t length) {
         fprintf(stderr, "Error: File is not open for writing\n");
         return;
     }
-    //sf_write_raw(file, data, length); // Записать аудиоданные в файл
+
     if (sf_write_short(file, data, length) != static_cast<sf_count_t>(length)) {
        fprintf(stderr, "Error: Failed to write data to file\n");
     }
