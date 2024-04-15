@@ -1,6 +1,6 @@
 #pragma once
 
-#include "WavFileWriter.h"
+#include "WavReaderWriter.h"
 
 class AudioRecorder {
 private:
@@ -28,14 +28,14 @@ private:
 
 public:
     // Переменная для работы с файлом WAV
-    WavFileWriter writer;
+    WavReaderWriter wavReadWrtite;
 
-    AudioRecorder();
-    AudioRecorder(int sampleRate, int numChannels, int bitsPerSample, int _sizeBuffer, const std::string& filename);
+    AudioRecorder(int sampleRate, int channels, int bitsPerSample, int _sizeBuffer, const std::string& filename);
     ~AudioRecorder();
 
-    bool IsRecording();
+    bool IsRecording() const;
     void StartRecording();
     void StopRecording();
     void PrepareAudioBuffer(HWAVEIN hWaveIn, WAVEHDR& waveHdr, int sizeBuffer);
+    WAVEFORMATEX ConvertSF_InfoToWaveFormatX(const SF_INFO& sfInfo);
 };

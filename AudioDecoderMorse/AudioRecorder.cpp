@@ -1,34 +1,24 @@
 #include "AudioRecorder.h"
 
 // Конструктор класса AudioRecorder
-AudioRecorder::AudioRecorder(int sampleRate = 44100, int numChannels = 2, int bitsPerSample = 16, int _sizeBuffer = 4096, const std::string& _filename = "recorded.wav")
+AudioRecorder::AudioRecorder(int sampleRate = 44100, int channels = 2, int bitsPerSample = 16, int _sizeBuffer = 4096, const std::string& _filename = "recorded.wav")
 	: isRecording(false), countBuffers(4), recordingThread(NULL), recordingThreadId(0) {
 
-	// Инициализация waveFormatX с заданными параметрами
-	writer.wavHeader.fmt.waveFormatX.wFormatTag = WAVE_FORMAT_PCM;
-	writer.wavHeader.fmt.waveFormatX.nSamplesPerSec = sampleRate;
-	writer.wavHeader.fmt.waveFormatX.wBitsPerSample = bitsPerSample;
-	writer.wavHeader.fmt.waveFormatX.nChannels = numChannels;
-	writer.wavHeader.fmt.waveFormatX.cbSize = 0;
-	writer.wavHeader.fmt.waveFormatX.nBlockAlign = (numChannels * bitsPerSample) / 8;
-	writer.wavHeader.fmt.waveFormatX.nAvgBytesPerSec = sampleRate * writer.wavHeader.fmt.waveFormatX.nBlockAlign;
+	wavReadWrtite.SetSF_Info(sampleRate, channels, SF_FORMAT_WAV | SF_FORMAT_PCM_16);
+	WAVEFORMATEX waveFormatX = ConvertSF_InfoToWaveFormatX(wavReadWrtite.GetSF_Info());
 
 	// Инициализация sizeBuffer
 	sizeBuffer = _sizeBuffer;
-	if (sizeBuffer % writer.wavHeader.fmt.waveFormatX.nBlockAlign != 0) {
-		// Если размер буфера не кратен writer.wavHeader.fmt.waveFormatX.nBlockAlign, увеличиваем его до ближайшего кратного
-		sizeBuffer += writer.wavHeader.fmt.waveFormatX.nBlockAlign - (sizeBuffer % writer.wavHeader.fmt.waveFormatX.nBlockAlign);
-	}
 
 	// Инициализация поля имени файла
-	writer.fileName = _filename;
+	wavReadWrtite.SetFileName(_filename);
 
 	// Инициализация векторов заголовков и буферов
 	waveHeaders.resize(countBuffers);
 	buffers.resize(countBuffers);
 
 	// Открытие устройства записи звука
-	MMRESULT result = waveInOpen(&hWaveIn, WAVE_MAPPER, &writer.wavHeader.fmt.waveFormatX, (DWORD_PTR)waveInProc, (DWORD_PTR)this, CALLBACK_FUNCTION);
+	MMRESULT result = waveInOpen(&hWaveIn, WAVE_MAPPER, &waveFormatX, (DWORD_PTR)waveInProc, (DWORD_PTR)this, CALLBACK_FUNCTION);
 	if (result != MMSYSERR_NOERROR) {
 		throw std::runtime_error("Ошибка открытия устройства ввода звука!");
 	}
@@ -90,8 +80,7 @@ AudioRecorder::~AudioRecorder() {
 	}
 }
 
-bool AudioRecorder::IsRecording()
-{
+bool AudioRecorder::IsRecording() const {
 	return isRecording;
 };
 
@@ -101,15 +90,9 @@ void AudioRecorder::StartRecording() {
 	if (isRecording) {
 		throw std::runtime_error("Уже записывается!");
 	}
-
+	
 	// Открываем файл для записи данных
-	writer.outFile.open(writer.fileName, std::ios::binary);
-	if (!writer.outFile.is_open()) {
-		throw std::runtime_error("Ошибка открытия файла для записи!");
-	}
-
-	// Пропускаем заголовок
-	writer.outFile.seekp(44, std::ios::beg);
+	wavReadWrtite.OpenFileForWrite(wavReadWrtite.GetFileName());
 
 	// Выделение памяти и подготовка заголовков буферов
 	for (int i = 0; i < countBuffers; ++i) {
@@ -151,30 +134,9 @@ void AudioRecorder::StopRecording() {
 	if (result != MMSYSERR_NOERROR) {
 		// Обработка ошибки
 	}
-
-	// Считаем размер блока данных
-	uint32_t sizeDataFile;
-	sizeDataFile = writer.GetSizeFile();
-
-	// Заполнение оставшихся полей в структуре заголовка файла WAV
-	writer.wavHeader.riff.chunkSize = sizeDataFile
-		- sizeof(writer.wavHeader.riff.chunkID)
-		- sizeof(writer.wavHeader.riff.format);
-
-	writer.wavHeader.data.subChunk2Size = sizeDataFile
-		- sizeof(writer.wavHeader.riff)
-		- sizeof(writer.wavHeader.fmt.subchunk1Id)
-		- sizeof(writer.wavHeader.fmt.subchunk1Size)
-		- sizeof(writer.wavHeader.fmt.waveFormatX)
-		+ sizeof(writer.wavHeader.fmt.waveFormatX.cbSize)
-		- sizeof(writer.wavHeader.data.subChunk2ID)
-		- sizeof(writer.wavHeader.data.subChunk2Size);
-
-	// Запись заголовка WAV файла
-	writer.WriteHeader(writer.wavHeader);
-
+	
 	// Закрытие файла для записи
-	writer.outFile.close();
+	wavReadWrtite.CloseFile();
 }
 
 // Функция для подготовки буфера для записи звука
@@ -187,7 +149,7 @@ void AudioRecorder::PrepareAudioBuffer(HWAVEIN hWaveIn, WAVEHDR& waveHdr, int si
 	}
 
 	// Заполнение структуры WAVEHDR
-	waveHdr.dwBufferLength = sizeBuffer;
+	waveHdr.dwBufferLength = sizeBuffer * sizeof(char);
 	waveHdr.dwBytesRecorded = 0;
 	waveHdr.dwUser = 0;
 	waveHdr.dwFlags = 0;
@@ -211,6 +173,20 @@ void AudioRecorder::PrepareAudioBuffer(HWAVEIN hWaveIn, WAVEHDR& waveHdr, int si
 	}
 
 	return; // Буфер успешно подготовлен
+}
+
+WAVEFORMATEX AudioRecorder::ConvertSF_InfoToWaveFormatX(const SF_INFO& sfInfo) {
+	WAVEFORMATEX waveFormatX{};
+	
+	waveFormatX.wFormatTag = WAVE_FORMAT_PCM; // По умолчанию PCM формат
+	waveFormatX.nSamplesPerSec = sfInfo.samplerate;
+	waveFormatX.wBitsPerSample = sizeof(char) * 8;
+	waveFormatX.nChannels = sfInfo.channels;
+	waveFormatX.cbSize = 0; // По умолчанию 0
+	waveFormatX.nBlockAlign = (waveFormatX.nChannels * waveFormatX.wBitsPerSample) / 8;
+	waveFormatX.nAvgBytesPerSec = waveFormatX.nSamplesPerSec * waveFormatX.nBlockAlign;
+
+	return waveFormatX;
 }
 
 // Статический обработчик звука, используемый для записи звука
@@ -244,11 +220,24 @@ DWORD WINAPI AudioRecorder::recordingThreadProc(LPVOID lpParam) {
 		// Получение звуковых данных из очереди
 		WaitForSingleObject(recorder->audioQueueMutex, INFINITE);
 		std::vector<char> audioData = recorder->audioQueue.front();
+		
+		
+		std::vector<short> data;
+		for (char c : audioData) {
+			short s = (c); // Преобразование char в short
+			data.push_back(s); // Добавление элемента в вектор short
+		}
+
+
+
+
 		recorder->audioQueue.pop();
 		ReleaseMutex(recorder->audioQueueMutex);
 
 		// Запись звуковых данных в выходной файл
-		recorder->writer.outFile.write(audioData.data(), audioData.size());
+		//recorder->wavReadWrtite.WriteData(reinterpret_cast<short*>(audioData.data()), audioData.size());
+		//recorder->wavReadWrtite.WriteData(&audioData[0], audioData.size());
+		recorder->wavReadWrtite.WriteData(&data[0], audioData.size());
 	}
 	return 0;
 }
