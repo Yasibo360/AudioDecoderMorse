@@ -1,15 +1,17 @@
 ﻿#include "AudioRecorder.h"
 
 // Конструктор класса AudioRecorder
-AudioRecorder::AudioRecorder(int sampleRate = 44100, int channels = 2, int bitsPerSample = 16, int _sizeBuffer = 4096, const std::string& _filename = "recorded.wav")
+AudioRecorder::AudioRecorder(int sampleRate = 44100, int channels = 2, int _bitsPerSample = 16, int _sizeBuffer = 4096, const std::string& _filename = "recorded.wav")
 	: isRecording(false), countBuffers(4), recordingThread(NULL), recordingThreadId(0) {
 
 	wavReadWrtite.SetSF_Info(sampleRate, channels, SF_FORMAT_WAV | SF_FORMAT_PCM_16);
 	WAVEFORMATEX waveFormatX = ConvertSF_InfoToWaveFormatX(wavReadWrtite.GetSF_Info());
 
+	int bitsPerSample = sizeof(short) * 8;
+
 	// Инициализация sizeBuffer
 	//sizeBuffer = _sizeBuffer;
-	sizeBuffer = wavReadWrtite.GetSF_Info().samplerate * wavReadWrtite.GetSF_Info().channels * (sizeof(short) * 8) / 8;
+	sizeBuffer = wavReadWrtite.GetSF_Info().samplerate * wavReadWrtite.GetSF_Info().channels * bitsPerSample / 8;
 
 
 	// Инициализация поля имени файла
@@ -55,6 +57,11 @@ AudioRecorder::~AudioRecorder() {
 	if (result != MMSYSERR_NOERROR) {
 		// Логирование ошибки или игнорирование
 	}
+	
+	for (auto& buffer : audioBuffers) {
+		buffer.clear();
+	}
+	
 	/*
 	// Освободить память, выделенную для буферов
 	for (const auto& buffer : buffers) {
@@ -116,6 +123,12 @@ void AudioRecorder::StopRecording() {
 		return;
 	}
 
+	// Остановка и закрытие устройства записи звука
+	MMRESULT result = waveInStop(hWaveIn);
+	if (result != MMSYSERR_NOERROR) {
+		// Обработка ошибки
+	}
+
 	// Сигнал потоку записи о необходимости завершения
 	isRecording = false;
 	ReleaseSemaphore(audioQueueSemaphore, 1, NULL);
@@ -123,21 +136,30 @@ void AudioRecorder::StopRecording() {
 	// Ожидание завершения потока записи
 	WaitForSingleObject(recordingThread, INFINITE);
 
+
 	// Освобождение буферов
 	for (const auto& header : waveHeaders) {
 		waveInUnprepareHeader(hWaveIn, (LPWAVEHDR)&header, sizeof(WAVEHDR));
 	}
+
+	for (auto& buffer : audioBuffers) {
+		buffer.clear();
+	}
+
 	/*
 	for (const auto& buffer : buffers) {
 		delete[] buffer;
 	}
 	*/
-	// Остановка и закрытие устройства записи звука
-	MMRESULT result = waveInStop(hWaveIn);
-	if (result != MMSYSERR_NOERROR) {
-		// Обработка ошибки
-	}
 	
+	
+	// Закрыть поток записи, если он был создан
+	if (recordingThread != NULL) {
+		WaitForSingleObject(recordingThread, INFINITE);
+		CloseHandle(recordingThread);
+		recordingThread = NULL; // Сбросить дескриптор потока
+	}
+
 	// Закрытие файла для записи
 	wavReadWrtite.CloseFile();
 }
@@ -199,7 +221,6 @@ void CALLBACK AudioRecorder::waveInProc(HWAVEIN hwi, UINT uMsg, DWORD_PTR dwInst
 
 		if (waveHdr->dwBytesRecorded > 0) {
 			WaitForSingleObject(recorder->audioQueueMutex, INFINITE);
-			//recorder->audioQueue.push(std::vector<short>(waveHdr->lpData, waveHdr->lpData + waveHdr->dwBytesRecorded));
 			recorder->audioQueue.push(*audioData);
 			ReleaseMutex(recorder->audioQueueMutex);
 			ReleaseSemaphore(recorder->audioQueueSemaphore, 1, NULL); // Сигнал о доступных данных
@@ -222,17 +243,17 @@ DWORD WINAPI AudioRecorder::recordingThreadProc(LPVOID lpParam) {
 
 		// Получение звуковых данных из очереди
 		WaitForSingleObject(recorder->audioQueueMutex, INFINITE);
-		std::vector<short> audioData = recorder->audioQueue.front();
 		
+		std::vector<short> audioData;
+		if (!recorder->audioQueue.empty()) {
+			audioData = recorder->audioQueue.front();
+			recorder->audioQueue.pop();
 
-		recorder->audioQueue.pop();
-		ReleaseMutex(recorder->audioQueueMutex);
-
-		
-
-		// Запись звуковых данных в выходной файл
-		//recorder->wavReadWrtite.WriteData(reinterpret_cast<short*>(audioData.data()), audioData.size());
-		recorder->wavReadWrtite.WriteData(audioData.data(), recorder->wavReadWrtite.GetSF_Info().samplerate);
+			// Запись звуковых данных в выходной файл		
+			//recorder->wavReadWrtite.WriteData(audioData.data(), recorder->wavReadWrtite.GetSF_Info().samplerate * recorder->wavReadWrtite.GetSF_Info().channels);
+			recorder->wavReadWrtite.WriteData(audioData.data(), audioData.size() / 2);
+		}				
+		ReleaseMutex(recorder->audioQueueMutex);		
 	}
 	return 0;
 }
