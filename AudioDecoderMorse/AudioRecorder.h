@@ -30,7 +30,7 @@ public:
     // Переменная для работы с файлом WAV
     WavReaderWriter wavReadWrtite;
 
-    AudioRecorder(int sampleRate, int channels, int bitsPerSample, int _sizeBuffer, const std::string& filename);
+    AudioRecorder(const std::string& filename = "recorded.wav", int sampleRate = 44100, int channels = 1, int format = SF_FORMAT_WAV | SF_FORMAT_PCM_16);
     ~AudioRecorder();
 
     bool IsRecording() const;

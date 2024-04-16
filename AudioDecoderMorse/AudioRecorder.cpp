@@ -1,16 +1,15 @@
 ﻿#include "AudioRecorder.h"
 
 // Конструктор класса AudioRecorder
-AudioRecorder::AudioRecorder(int sampleRate = 44100, int channels = 2, int _bitsPerSample = 16, int _sizeBuffer = 4096, const std::string& _filename = "recorded.wav")
+AudioRecorder::AudioRecorder(const std::string& _filename, int sampleRate, int channels, int format)
 	: isRecording(false), countBuffers(4), recordingThread(NULL), recordingThreadId(0) {
 
-	wavReadWrtite.SetSF_Info(sampleRate, channels, SF_FORMAT_WAV | SF_FORMAT_PCM_16);
+	wavReadWrtite.SetSF_Info(sampleRate, channels, format);
 	WAVEFORMATEX waveFormatX = ConvertSF_InfoToWaveFormatX(wavReadWrtite.GetSF_Info());
 
 	int bitsPerSample = sizeof(short) * 8;
 
 	// Инициализация sizeBuffer
-	//sizeBuffer = _sizeBuffer;
 	sizeBuffer = wavReadWrtite.GetSF_Info().samplerate * wavReadWrtite.GetSF_Info().channels * bitsPerSample / 8;
 
 
