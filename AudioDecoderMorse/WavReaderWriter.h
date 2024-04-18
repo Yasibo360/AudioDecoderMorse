@@ -3,7 +3,6 @@
 #include <process.h>
 #include <cstdint>
 #include <string>
-#include "SFML/Graphics.hpp"
 #include <windows.h>
 #include <fstream>
 #include <iostream>

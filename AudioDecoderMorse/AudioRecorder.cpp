@@ -12,7 +12,6 @@ AudioRecorder::AudioRecorder(const std::string& _filename, int sampleRate, int c
 	// Инициализация sizeBuffer
 	sizeBuffer = wavReadWrtite.GetSF_Info().samplerate * wavReadWrtite.GetSF_Info().channels * bitsPerSample / 8;
 
-
 	// Инициализация поля имени файла
 	wavReadWrtite.SetFileName(_filename);
 

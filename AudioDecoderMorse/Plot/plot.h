@@ -167,7 +167,7 @@ inline void Plot::setYLabel(const std::string &name)
 
 inline void Plot::setTitleColor(const sf::Color &color)
 {
-    title_.setColor(color);
+    title_.setFillColor(color);
 }
 
 inline void Plot::setBackgroundColor(const sf::Color &color)

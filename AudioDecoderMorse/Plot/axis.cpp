@@ -40,7 +40,7 @@ void Axis::prepare(const Vector2f &range)
         sf::Text text;
         text.setFont(*font_);
         text.setCharacterSize(16);
-        text.setColor(sf::Color::Black);
+        text.setFillColor(sf::Color::Black);
         std::stringstream ss;
         ss << std::setprecision(3) << range.x + offset * i;
         text.setString(ss.str());
@@ -54,7 +54,7 @@ void Axis::defineLabel()
     if(!font_) return ;
     label_.setFont(*font_);
     label_.setCharacterSize(16);
-    label_.setColor(sf::Color::Black);
+    label_.setFillColor(sf::Color::Black);
     label_.setString(name_);
 
     if(getRotation() != 0)

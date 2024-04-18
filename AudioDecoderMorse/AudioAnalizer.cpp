@@ -1,4 +1,5 @@
 #include "AudioAnalizer.h"
+#include "AudioGraph.h"
 
 AudioAnalizer::AudioAnalizer(const std::string& filename) {
 	// Чтение файла WAV
@@ -12,6 +13,7 @@ AudioAnalizer::AudioAnalizer(const std::string& filename) {
 	audioData.resize(sizeBuffer);
 	wavReaderWriter.ReadData(audioData.data(), audioData.size() / 2);
 
+	wavReaderWriter.CloseFile();
 }
 
 AudioAnalizer::~AudioAnalizer() {}
@@ -34,7 +36,50 @@ void AudioAnalizer::PlotAmplitudeOverTime(HWND hWnd) {
 	// Рассчитываем размеры прямоугольной области с отступами
 	float marginX = width * 0.05f; // Отступ слева и справа 5% от ширины
 	float marginY = height * 0.2f; // Отступ сверху и снизу, чтобы выровнять
-	
+
+	std::vector<short> left_channel;
+	if (audioData.size() % 2 == 0)
+	{
+		for (size_t i = 0; i < audioData.size(); i += 2)
+		{
+			left_channel.push_back(audioData[i]);
+		}
+	}
+
+
+
+
+	std::string audioFile = "recorded.wav";
+	AudioGraph audioGraph(audioData, sf::Vector2i(0, 0));
+
+
+	sf::RenderWindow window1(sf::VideoMode(800, 600), "Audio Graph");
+	window1.setFramerateLimit(60);
+
+
+	while (window1.isOpen())
+	{
+		// Обработка событий
+		sf::Event event;
+		while (window1.pollEvent(event))
+		{
+			if (event.type == sf::Event::Closed)
+				window1.close();
+		}
+
+		// Отрисовка
+		window1.clear();
+		window1.draw(audioGraph);
+		window1.display();
+
+		// Обновление аудиографика
+		audioGraph.update();
+	}
+
+
+
+	/*
+
 	// Создаем прямоугольник, который определяет область рисования
 	sf::FloatRect drawArea(sf::Vector2f(marginX, marginY), sf::Vector2f(width - 2 * marginX, height - 2 * marginY));
 
@@ -45,7 +90,7 @@ void AudioAnalizer::PlotAmplitudeOverTime(HWND hWnd) {
 	borderRect.setFillColor(sf::Color::White);
 	borderRect.setOutlineColor(sf::Color::Black);
 	borderRect.setOutlineThickness(1.0f);
-	
+
 	// Находим максимальное значение амплитуды
 	float maxAmplitude = *std::max_element(audioData.begin(), audioData.end());
 	float normalize = (drawArea.getSize().y / 2) / maxAmplitude;
@@ -63,7 +108,7 @@ void AudioAnalizer::PlotAmplitudeOverTime(HWND hWnd) {
 	// Добавляем название графика
 	sf::Text title("График амплитуды по времени", sf::Font(), 20);
 	title.setFillColor(sf::Color::Black);
-	title.setPosition(drawArea.getPosition().x + drawArea.getSize().x / 2, 
+	title.setPosition(drawArea.getPosition().x + drawArea.getSize().x / 2,
 		drawArea.getPosition().y - drawArea.getSize().y / 10); // Позиция над рамкой
 
 	// Создаем сетку серого цвета
@@ -103,7 +148,7 @@ void AudioAnalizer::PlotAmplitudeOverTime(HWND hWnd) {
 	sf::Text yAxisLabel("Амплитуда", sf::Font(), 12);
 	yAxisLabel.setFillColor(sf::Color::Black);
 	yAxisLabel.setPosition(drawArea.getPosition().x - 50, drawArea.getPosition().y + drawArea.getSize().y / 2);
-	
+
 	// Отрисовка графика и осей
 	window.draw(borderRect); // Добавьте прямоугольник в окно
 	window.draw(grid);
@@ -111,10 +156,10 @@ void AudioAnalizer::PlotAmplitudeOverTime(HWND hWnd) {
 	//window.draw(xAxisLabel);
 	//window.draw(yAxisLabel);
 	window.draw(graph);
-
+	
 
 	// Отображение нарисованного на экране
-	window.display();
+	window.display();*/
 }
 
 // Реализация построения графика амплитуды по частоте
