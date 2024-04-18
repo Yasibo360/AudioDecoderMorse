@@ -6,6 +6,7 @@
 
 #include "MorseСode.h"
 #include "AudioRecorder.h"
+#include "AudioAnalizer.h"
 #include "TextOperations.h"
 #include "ControlsID.h"
 
@@ -20,9 +21,15 @@ WCHAR szTitle[MAX_LOADSTRING];                  // Текст строки за�
 WCHAR szWindowClass[MAX_LOADSTRING];            // Имя класса главного окна
 LPCWSTR szWndClassPane;
 
+HBRUSH brushMenu;
+HBRUSH brushPane;
+
+HWND hWndPane2;
+
 // Мои глобальные переменные
 MorseСode morse;
-AudioRecorder recorder();
+AudioRecorder recorder;
+AudioAnalizer analizer;
 
 // Отправить объявления функций, включенных в этот модуль кода:
 ATOM MyRegisterClass(HINSTANCE hInstance, WNDPROC WndProc, HBRUSH hbrBackground, LPCUWSTR szWindowClass);
@@ -43,10 +50,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	LoadStringW(hInstance, IDC_AUDIODECODERMORSE, szWindowClass, MAX_LOADSTRING);
 
 	szWndClassPane = L"Pane";
+	brushMenu = CreateSolidBrush(RGB(68, 121, 212));
+	HBRUSH brushPane = CreateSolidBrush(RGB(8, 111, 161));
 
 	// Регистрация классов
-	MyRegisterClass(hInstance, WndProc, CreateSolidBrush(RGB(68, 121, 212)), szWindowClass);
-	MyRegisterClass(hInstance, WndProcPanes, CreateSolidBrush(RGB(8, 111, 161)), szWndClassPane);
+	MyRegisterClass(hInstance, WndProc, brushMenu, szWindowClass);
+	MyRegisterClass(hInstance, WndProcPanes, brushPane, szWndClassPane);
 
 	// Выполнить инициализацию приложения:
 	if (!InitInstance(hInstance, nCmdShow))
@@ -77,7 +86,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 //
 ATOM MyRegisterClass(HINSTANCE hInstance, WNDPROC WndProc, HBRUSH hbrBackground, LPCUWSTR szWindowClass)
 {
-	WNDCLASSEXW wcex;
+	WNDCLASSEXW wcex{};
 
 	wcex.cbSize = sizeof(WNDCLASSEX);
 
@@ -137,8 +146,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	PAINTSTRUCT ps;
 	HDC hdc;
-	RECT rc;
-	RECT menuButton;
+	RECT rc{};
+	RECT menuButton{};
 
 	switch (message)
 	{
@@ -147,7 +156,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		// Установка локали
 		std::setlocale(LC_ALL, "");
 
-		RECT separatorControls;
+		RECT separatorControls{};
 
 		rc.right = 1200;
 		rc.bottom = 800;
@@ -232,18 +241,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			L"",
 			WS_VISIBLE | WS_CHILD,
 			separatorControls.right, 0,
-			rc.right, rc.bottom,
+			rc.right - separatorControls.right, rc.bottom,
 			hWnd,
 			(HMENU)IDPane1,
 			hInst,
 			nullptr);
 
-		CreateWindow(
+		hWndPane2 = CreateWindow(
 			szWndClassPane,
 			L"",
 			WS_VISIBLE | WS_CHILD,
-			separatorControls.right, 0,
-			rc.right, rc.bottom,
+			separatorControls.right+10, 10,
+			rc.right - separatorControls.right-20, rc.bottom-20,
 			hWnd,
 			(HMENU)IDPane2,
 			hInst,
@@ -255,7 +264,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			L"",
 			WS_VISIBLE | WS_CHILD,
 			separatorControls.right, 0,
-			rc.right, rc.bottom,
+			rc.right - separatorControls.right, rc.bottom,
 			hWnd,
 			(HMENU)IDPane3,
 			hInst,
@@ -302,7 +311,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			nullptr);
 
 		// Создание контролов для 2-ой панели
-
+		CreateWindow(
+			L"BUTTON",
+			L"График",
+			WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+			(rc.right - separatorControls.right) / 2 - 75,
+			rc.bottom - 75,
+			300,
+			50,
+			GetDlgItem(hWnd, IDPane2),
+			(HMENU)IDPane2ButtonGraph,
+			hInst,
+			nullptr);
 
 		// Создание контролов для 3-ой панели
 		SIZE edit = {};
@@ -449,20 +469,30 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK WndProcPanes(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	WCHAR buffer[MAX_EDITSTRING];
+	std::wstring morseCode;
+	std::wstring morseChar;
+
 	switch (message)
 	{
 	case WM_COMMAND:
 	{
-		WCHAR buffer[MAX_EDITSTRING];
-		std::wstring morseCode;
-		std::wstring morseChar;
-
 		switch HIWORD(wParam)
 		{
 		case BN_CLICKED:
 		{
 			switch LOWORD(wParam)
 			{
+			case IDPane2ButtonGraph:
+			{
+				analizer.PlotAmplitudeOverTime(hWndPane2);
+				//InvalidateRect(hWnd, NULL, TRUE); // Помечаем всё окно для перерисовки
+				//UpdateWindow(hWnd); // Принудительно обновляем окно
+
+				//std::vector<std::pair<int, int>> result = analizer.FindWidePeaks();
+
+			}
+			break;
 			case IDPane3ButtCopyText:
 			{
 				CopyIntoBuffer(hWnd, IDPane3EditText);

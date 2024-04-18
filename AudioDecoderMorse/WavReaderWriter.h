@@ -1,7 +1,9 @@
 #pragma once
 
+#include <process.h>
 #include <cstdint>
 #include <string>
+#include "SFML/Graphics.hpp"
 #include <windows.h>
 #include <fstream>
 #include <iostream>
@@ -31,6 +33,8 @@ public:
 
 	void ReadData(short* data, size_t length);
     void WriteData(const short* data, size_t length);
+
+    SNDFILE* GetFile();
 
     void SetFileName(const std::string& nameFile);
     std::string GetFileName();

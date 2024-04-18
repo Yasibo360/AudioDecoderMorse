@@ -14,6 +14,8 @@ const int IDButtPane4 = 100 + 5;
 const int IDPane1ButtonRec = IDPane1 + 1;
 const int IDPane1EditRes = IDPane1 + 2;
 
+const int IDPane2ButtonGraph = IDPane2 + 1;
+
 const int IDPane3EditText = IDPane3 + 1;
 const int IDPane3EditCode = IDPane3 + 2;
 const int IDPane3ButtCopyText = IDPane3 + 3;

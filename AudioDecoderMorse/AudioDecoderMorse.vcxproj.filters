@@ -27,9 +27,6 @@
     <ClInclude Include="AudioDecoderMorse.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="TextOperations.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
     <ClInclude Include="AudioRecorder.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
@@ -39,10 +36,16 @@
     <ClInclude Include="WavFileStructures.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="WavFileWriter.h">
+    <ClInclude Include="ControlsID.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="ControlsID.h">
+    <ClInclude Include="WavReaderWriter.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="TextOperations.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioAnalizer.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
@@ -59,7 +62,10 @@
     <ClCompile Include="MorseСode.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="WavFileWriter.cpp">
+    <ClCompile Include="WavReaderWriter.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioAnalizer.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
