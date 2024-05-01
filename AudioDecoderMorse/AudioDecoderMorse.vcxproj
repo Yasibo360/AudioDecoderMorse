@@ -104,13 +104,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Yasibo360\vcpkg\installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Yasibo360\vcpkg\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>winmm.lib;sndfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\Yasibo360\vcpkg\installed\x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>winmm.lib;sndfile.lib;sfml-audio-d.lib;sfml-graphics-d.lib;sfml-system-d.lib;sfml-window-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\Yasibo360\vcpkg\vcpkg_installed\x64-windows\debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -132,9 +132,14 @@
   <ItemGroup>
     <ClInclude Include="AudioDecoderMorse.h" />
     <ClInclude Include="AudioRecorder.h" />
+    <ClInclude Include="Axis.h" />
     <ClInclude Include="ControlsID.h" />
+    <ClInclude Include="Curve.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="Grid.h" />
     <ClInclude Include="MorseСode.h" />
+    <ClInclude Include="Plot.h" />
+    <ClInclude Include="Plot_AmpTime.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TextOperations.h" />
@@ -144,7 +149,12 @@
   <ItemGroup>
     <ClCompile Include="AudioDecoderMorse.cpp" />
     <ClCompile Include="AudioRecorder.cpp" />
+    <ClCompile Include="Axis.cpp" />
+    <ClCompile Include="Curve.cpp" />
+    <ClCompile Include="Grid.cpp" />
     <ClCompile Include="MorseСode.cpp" />
+    <ClCompile Include="Plot.cpp" />
+    <ClCompile Include="Plot_AmpTime.cpp" />
     <ClCompile Include="TextOperations.cpp" />
     <ClCompile Include="WavReaderWriter.cpp" />
   </ItemGroup>
