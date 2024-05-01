@@ -87,7 +87,7 @@ void WavReaderWriter::ReadData(short* data, size_t length) {
 		return;
 	}
 
-	if (sf_readf_short(file, data, length) != static_cast<sf_count_t>(length)) {
+	if (sf_read_short(file, data, length) != static_cast<sf_count_t>(length)) {
 		fprintf(stderr, "Error: Failed to read data from file\n");
 	}
 }

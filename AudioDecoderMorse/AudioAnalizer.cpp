@@ -11,7 +11,7 @@ AudioAnalizer::AudioAnalizer(const std::string& filename) {
 	int sizeBuffer = wavReaderWriter.GetSF_Info().samplerate * wavReaderWriter.GetSF_Info().channels * bitsPerSample / 8;
 
 	audioData.resize(sizeBuffer);
-	wavReaderWriter.ReadData(audioData.data(), audioData.size() / 2);
+	wavReaderWriter.ReadData(audioData.data(), audioData.size());
 
 	wavReaderWriter.CloseFile();
 }
@@ -185,10 +185,72 @@ double AudioAnalizer::CalculateAverage() {
 // Реализация метода для определения широких пиков
 std::vector<std::pair<int, int>> AudioAnalizer::FindWidePeaks() {
 	std::vector<std::pair<int, int>> widePeaks;
+	std::vector<std::pair<double, double>> widePeak;
+	// Вычисляем среднее значение для положительной и отрицательной частей амплатуды
+	double mean_positive_left = 0;
+	double mean_negative_left = 0;
+	int count_positive = 0;
+	int count_negative = 0;
 
+	for (size_t i = 0; i < audioData.size(); ++i) {
+		if (audioData[i] > 0) {
+			mean_positive_left += audioData[i];
+			count_positive++;
+		}
+		else {
+			mean_negative_left += audioData[i];
+			count_negative++;
+		}
+	}
+
+	if (count_positive > 0) {
+		mean_positive_left /= count_positive;
+	}
+	if (count_negative > 0) {
+		mean_negative_left /= count_negative;
+	}
+
+	auto maxElement = std::max_element(audioData.begin(), audioData.end());
+
+	// Определение широких пиков в аудиофайле
+	const int peakThreshold = *maxElement * 0.8; // Порог для определения широких пиков
+
+	bool isPeak = false;
+	double peakStart = 0.0;
+	double peakEnd = 0.0;
+	int numSec = wavReaderWriter.GetSF_Info().frames / wavReaderWriter.GetSF_Info().samplerate;
+
+	for (size_t i = 1; i < audioData.size() - 1; ++i) {
+		if (std::abs(audioData[i]) > peakThreshold && std::abs(audioData[i]) > std::abs(audioData[i - 1])) {
+			if (!isPeak) {
+				isPeak = true;
+				peakStart = (double)i / audioData.size() * numSec;
+			}
+		}
+		else {
+			if (std::abs(audioData[i]) < peakThreshold && std::abs(audioData[i - 1]) > std::abs(audioData[i])) {
+				if (isPeak) {
+					peakEnd = (double)i / audioData.size() * numSec;
+					widePeak.push_back(std::make_pair(peakStart, peakEnd));
+					isPeak = false;
+				}	
+			}
+		}
+	}
+
+	// Вывод результатов
+	std::cout << "Wide peaks found at indices: ";
+	for (const auto& peak : widePeak) {
+		std::cout << "(" << peak.first << ", " << peak.second << ") ";
+	}
+	std::cout << std::endl;
+	
+	/*
+	
 	// Предполагаем, что широкий пик определяется как пик, который превышает среднее значение на 20%
 	double threshold = CalculateAverage() * 1.2;
-
+	auto maxElement = std::max_element(audioData.begin(), audioData.end());
+	threshold = *maxElement * 0.7;
 	// Ищем пики
 	int startIndex = 0;
 	for (int i = 1; i < audioData.size(); ++i) {
@@ -198,7 +260,7 @@ std::vector<std::pair<int, int>> AudioAnalizer::FindWidePeaks() {
 		else if (audioData[i] < threshold && audioData[i - 1] > threshold) {
 			widePeaks.push_back(std::make_pair(startIndex, i - 1));
 		}
-	}
+	}*/
 
 	return widePeaks;
 }

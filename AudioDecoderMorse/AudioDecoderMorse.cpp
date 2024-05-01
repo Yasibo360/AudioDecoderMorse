@@ -485,11 +485,11 @@ LRESULT CALLBACK WndProcPanes(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			{
 			case IDPane2ButtonGraph:
 			{
-				analizer.PlotAmplitudeOverTime(hWndPane2);
+				//analizer.PlotAmplitudeOverTime(hWndPane2);
 				//InvalidateRect(hWnd, NULL, TRUE); // Помечаем всё окно для перерисовки
 				//UpdateWindow(hWnd); // Принудительно обновляем окно
 
-				//std::vector<std::pair<int, int>> result = analizer.FindWidePeaks();
+				std::vector<std::pair<int, int>> result = analizer.FindWidePeaks();
 
 			}
 			break;

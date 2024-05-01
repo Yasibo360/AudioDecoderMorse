@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Файлы заголовков\Plot">
+      <UniqueIdentifier>{a463b97b-cf2c-43e2-ae0f-c7a2df7234d3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -48,26 +51,26 @@
     <ClInclude Include="AudioAnalizer.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Plot\plot.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Plot\line.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Plot\grid.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Plot\curve.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Plot\axis.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="Plot\area.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="AudioGraph.h">
       <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Plot\axis.h">
+      <Filter>Файлы заголовков\Plot</Filter>
+    </ClInclude>
+    <ClInclude Include="Plot\curve.h">
+      <Filter>Файлы заголовков\Plot</Filter>
+    </ClInclude>
+    <ClInclude Include="Plot\grid.h">
+      <Filter>Файлы заголовков\Plot</Filter>
+    </ClInclude>
+    <ClInclude Include="Plot\line.h">
+      <Filter>Файлы заголовков\Plot</Filter>
+    </ClInclude>
+    <ClInclude Include="Plot\plot.h">
+      <Filter>Файлы заголовков\Plot</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
