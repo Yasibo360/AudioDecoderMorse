@@ -1,6 +1,7 @@
 #pragma once
 
 #include "WavReaderWriter.h"
+#include "Plot_AmpTime.h"
 
 class AudioAnalizer
 {

@@ -1,5 +1,5 @@
 #include "AudioAnalizer.h"
-#include "AudioGraph.h"
+//#include "AudioGraph.h"
 
 AudioAnalizer::AudioAnalizer(const std::string& filename) {
 	// Чтение файла WAV
@@ -49,32 +49,32 @@ void AudioAnalizer::PlotAmplitudeOverTime(HWND hWnd) {
 
 
 
-	std::string audioFile = "recorded.wav";
-	AudioGraph audioGraph(audioData, sf::Vector2i(0, 0));
+	//std::string audioFile = "recorded.wav";
+	//AudioGraph audioGraph(audioData, sf::Vector2i(0, 0));
 
 
-	sf::RenderWindow window1(sf::VideoMode(800, 600), "Audio Graph");
-	window1.setFramerateLimit(60);
+	//sf::RenderWindow window1(sf::VideoMode(800, 600), "Audio Graph");
+	//window1.setFramerateLimit(60);
 
 
-	while (window1.isOpen())
-	{
-		// Обработка событий
-		sf::Event event;
-		while (window1.pollEvent(event))
-		{
-			if (event.type == sf::Event::Closed)
-				window1.close();
-		}
+	//while (window1.isOpen())
+	//{
+	//	// Обработка событий
+	//	sf::Event event;
+	//	while (window1.pollEvent(event))
+	//	{
+	//		if (event.type == sf::Event::Closed)
+	//			window1.close();
+	//	}
 
-		// Отрисовка
-		window1.clear();
-		window1.draw(audioGraph);
-		window1.display();
+	//	// Отрисовка
+	//	window1.clear();
+	//	window1.draw(audioGraph);
+	//	window1.display();
 
-		// Обновление аудиографика
-		audioGraph.update();
-	}
+	//	// Обновление аудиографика
+	//	audioGraph.update();
+	//}
 
 
 

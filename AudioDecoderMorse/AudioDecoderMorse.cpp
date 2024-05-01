@@ -9,6 +9,7 @@
 #include "AudioAnalizer.h"
 #include "TextOperations.h"
 #include "ControlsID.h"
+#include "Plot_AmpTime.h"
 
 #include <locale>
 
@@ -29,7 +30,8 @@ HWND hWndPane2;
 // Мои глобальные переменные
 MorseСode morse;
 AudioRecorder recorder;
-AudioAnalizer analizer;
+//AudioAnalizer analizer;
+
 
 // Отправить объявления функций, включенных в этот модуль кода:
 ATOM MyRegisterClass(HINSTANCE hInstance, WNDPROC WndProc, HBRUSH hbrBackground, LPCUWSTR szWindowClass);
@@ -489,7 +491,10 @@ LRESULT CALLBACK WndProcPanes(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 				//InvalidateRect(hWnd, NULL, TRUE); // Помечаем всё окно для перерисовки
 				//UpdateWindow(hWnd); // Принудительно обновляем окно
 
-				std::vector<std::pair<int, int>> result = analizer.FindWidePeaks();
+				//std::vector<std::pair<int, int>> result = analizer.FindWidePeaks();
+
+				Plot_AmpTime plot;
+				
 
 			}
 			break;

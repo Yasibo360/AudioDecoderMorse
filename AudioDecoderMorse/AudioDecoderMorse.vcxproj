@@ -135,34 +135,30 @@
   <ItemGroup>
     <ClInclude Include="AudioAnalizer.h" />
     <ClInclude Include="AudioDecoderMorse.h" />
-    <ClInclude Include="AudioGraph.h" />
     <ClInclude Include="AudioRecorder.h" />
+    <ClInclude Include="Axis.h" />
     <ClInclude Include="ControlsID.h" />
+    <ClInclude Include="Curve.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="Grid.h" />
     <ClInclude Include="MorseСode.h" />
-    <ClInclude Include="Plot\area.h" />
-    <ClInclude Include="Plot\axis.h" />
-    <ClInclude Include="Plot\curve.h" />
-    <ClInclude Include="Plot\grid.h" />
-    <ClInclude Include="Plot\line.h" />
-    <ClInclude Include="Plot\plot.h" />
+    <ClInclude Include="Plot.h" />
+    <ClInclude Include="Plot_AmpTime.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TextOperations.h" />
-    <ClInclude Include="WavFileStructures.h" />
     <ClInclude Include="WavReaderWriter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AudioAnalizer.cpp" />
     <ClCompile Include="AudioDecoderMorse.cpp" />
     <ClCompile Include="AudioRecorder.cpp" />
+    <ClCompile Include="Axis.cpp" />
+    <ClCompile Include="Curve.cpp" />
+    <ClCompile Include="Grid.cpp" />
     <ClCompile Include="MorseСode.cpp" />
-    <ClCompile Include="Plot\area.cpp" />
-    <ClCompile Include="Plot\axis.cpp" />
-    <ClCompile Include="Plot\curve.cpp" />
-    <ClCompile Include="Plot\grid.cpp" />
-    <ClCompile Include="Plot\line.cpp" />
-    <ClCompile Include="Plot\plot.cpp" />
+    <ClCompile Include="Plot.cpp" />
+    <ClCompile Include="Plot_AmpTime.cpp" />
     <ClCompile Include="TextOperations.cpp" />
     <ClCompile Include="WavReaderWriter.cpp" />
   </ItemGroup>
