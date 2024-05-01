@@ -253,8 +253,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			szWndClassPane,
 			L"",
 			WS_VISIBLE | WS_CHILD,
-			separatorControls.right+10, 10,
-			rc.right - separatorControls.right-20, rc.bottom-20,
+			separatorControls.right, 0,
+			rc.right - separatorControls.right, rc.bottom,
 			hWnd,
 			(HMENU)IDPane2,
 			hInst,
@@ -493,8 +493,20 @@ LRESULT CALLBACK WndProcPanes(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 
 				//std::vector<std::pair<int, int>> result = analizer.FindWidePeaks();
 
-				Plot_AmpTime plot;
-				
+				// Настройка окна для отрисовки графика
+				sf::RenderWindow window(sf::VideoMode(800, 600), "Waveform with Peak Intervals");
+				Plot_AmpTime plot(sf::Vector2f(800, 600), sf::Vector2f(0, 0), "recorded.wav", "arial.ttf");
+				while (window.isOpen()) {
+					sf::Event event;
+					while (window.pollEvent(event)) {
+						if (event.type == sf::Event::Closed)
+							window.close();
+					}
+					window.clear(sf::Color(200, 200, 200));
+					window.draw(plot);
+
+					window.display();
+				}
 
 			}
 			break;
