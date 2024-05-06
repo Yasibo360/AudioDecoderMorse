@@ -2,18 +2,20 @@
 
 #include "WavReaderWriter.h"
 #include "Plot_AmpTime.h"
+#include "MyFunction.h"
 
 class AudioAnalizer
 {
 private:
-    WavReaderWriter wavReaderWriter;
-    std::vector<short> audioData;
-
-    
+    WavReaderWriter _wavReaderWriter;
+    std::vector<short> _audioData;
+    //Plot_AmpTime _plot;  
 
 public:
-	AudioAnalizer(const std::string& filename = "recorded.wav");
+	AudioAnalizer();
 	~AudioAnalizer();
+
+    bool readDataFromFile(const std::string& filename = "recorded.wav");
 
     // Реализация построения графика амплитуды по времени
     void PlotAmplitudeOverTime(HWND hWnd);

@@ -7,7 +7,7 @@
 #include "MorseСode.h"
 #include "AudioRecorder.h"
 #include "AudioAnalizer.h"
-#include "TextOperations.h"
+#include "MyFunction.h"
 #include "ControlsID.h"
 #include "Plot_AmpTime.h"
 
@@ -30,7 +30,7 @@ HWND hWndPane2;
 // Мои глобальные переменные
 MorseСode morse;
 AudioRecorder recorder;
-//AudioAnalizer analizer;
+AudioAnalizer analizer;
 
 
 // Отправить объявления функций, включенных в этот модуль кода:
@@ -487,26 +487,15 @@ LRESULT CALLBACK WndProcPanes(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			{
 			case IDPane2ButtonGraph:
 			{
+				std::wstring str = OpenFileDialog();
+				
 				//analizer.PlotAmplitudeOverTime(hWndPane2);
 				//InvalidateRect(hWnd, NULL, TRUE); // Помечаем всё окно для перерисовки
 				//UpdateWindow(hWnd); // Принудительно обновляем окно
 
 				//std::vector<std::pair<int, int>> result = analizer.FindWidePeaks();
 
-				// Настройка окна для отрисовки графика
-				sf::RenderWindow window(sf::VideoMode(800, 600), "Waveform with Peak Intervals");
-				Plot_AmpTime plot(sf::Vector2f(800, 600), sf::Vector2f(0, 0), "recorded.wav", "arial.ttf");
-				while (window.isOpen()) {
-					sf::Event event;
-					while (window.pollEvent(event)) {
-						if (event.type == sf::Event::Closed)
-							window.close();
-					}
-					window.clear(sf::Color(200, 200, 200));
-					window.draw(plot);
-
-					window.display();
-				}
+				
 
 			}
 			break;

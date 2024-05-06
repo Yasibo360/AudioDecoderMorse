@@ -6,3 +6,5 @@
 
 std::vector<std::wstring> Split(const std::wstring& src, const std::wstring& delim);
 void CopyIntoBuffer(const HWND hWnd, const int IDControl);
+
+std::wstring OpenFileDialog();

@@ -1,5 +1,5 @@
 #include "Morse—ode.h"
-#include "TextOperations.h"
+#include "MyFunction.h"
 
 #include <fstream>
 #include <iostream>
