@@ -20,13 +20,13 @@ wordPauseDuration(7 * dotDuration)
 	// Если словарей не найдено, программа не сможет работать
 	if (dictionaries.empty())
 	{
-
+		return;
 	}
 	else {
 		// Устанавливаем текущий словарь - Кириллица
 		setCurrentDictionary(dictionaries.begin()->first);
 	}
-	
+	return;
 };
 
 MorseСode::~MorseСode() {};

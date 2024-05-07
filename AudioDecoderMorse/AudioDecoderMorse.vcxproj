@@ -104,13 +104,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Yasibo360\vcpkg\installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Yasibo360\vcpkg\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>winmm.lib;sndfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\Yasibo360\vcpkg\installed\x64-windows\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Yasibo360\vcpkg\vcpkg_installed\x64-windows\debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -133,6 +133,7 @@
     <ClInclude Include="AudioDecoderMorse.h" />
     <ClInclude Include="AudioRecorder.h" />
     <ClInclude Include="ControlsID.h" />
+    <ClInclude Include="ControlsRect.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="MorseСode.h" />
     <ClInclude Include="Resource.h" />
@@ -153,6 +154,10 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="AudioDecoderMorse.ico" />
+    <Image Include="bitmap1.bmp" />
+    <Image Include="iconFile.ico" />
+    <Image Include="radist.bmp" />
+    <Image Include="radist.png" />
     <Image Include="small.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

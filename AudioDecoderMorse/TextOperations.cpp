@@ -1,4 +1,5 @@
 #include "TextOperations.h"
+#include <tchar.h>
 
 std::vector<std::wstring> Split(const std::wstring& input, const std::wstring& delimiter)
 {
@@ -41,4 +42,20 @@ void CopyIntoBuffer(const HWND hWnd, const int IDControl)
 		}
 		delete[] buffer;
 	}
+}
+
+int CountCharactersToEnd(TCHAR* szBuffer, int maxLength)
+{
+	int count = 0;
+
+	for (int i = 0; i < maxLength; i++)
+	{
+		count++;
+		if (szBuffer[i] == _T('\0'))
+		{
+			break;
+		}
+	}
+
+	return count;
 }

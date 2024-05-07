@@ -13,22 +13,13 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Файлы заголовков\Ресурсы">
+      <UniqueIdentifier>{c26c8f00-9135-402b-bd51-052e2b518c98}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="framework.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Resource.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="AudioDecoderMorse.h">
       <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="TextOperations.h">
-      <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="AudioRecorder.h">
       <Filter>Файлы заголовков</Filter>
@@ -39,11 +30,26 @@
     <ClInclude Include="WavFileStructures.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="WavFileWriter.h">
+    <ClInclude Include="WavReaderWriter.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Файлы заголовков\Ресурсы</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Файлы заголовков\Ресурсы</Filter>
+    </ClInclude>
     <ClInclude Include="ControlsID.h">
+      <Filter>Файлы заголовков\Ресурсы</Filter>
+    </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>Файлы заголовков\Ресурсы</Filter>
+    </ClInclude>
+    <ClInclude Include="TextOperations.h">
       <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="ControlsRect.h">
+      <Filter>Файлы заголовков\Ресурсы</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -59,7 +65,7 @@
     <ClCompile Include="MorseСode.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="WavFileWriter.cpp">
+    <ClCompile Include="WavReaderWriter.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
@@ -73,6 +79,18 @@
       <Filter>Файлы ресурсов</Filter>
     </Image>
     <Image Include="AudioDecoderMorse.ico">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="iconFile.ico">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="radist.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="bitmap1.bmp">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="radist.bmp">
       <Filter>Файлы ресурсов</Filter>
     </Image>
   </ItemGroup>
