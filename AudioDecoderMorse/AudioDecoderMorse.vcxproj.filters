@@ -13,50 +13,62 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Файлы заголовков\Ресурсы">
+    <Filter Include="Файлы заголовков\Зависимости">
       <UniqueIdentifier>{c26c8f00-9135-402b-bd51-052e2b518c98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\Настройки">
+      <UniqueIdentifier>{4e5bc355-8b12-4a3c-ac89-8f2602c44055}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\Зависимости\VS">
+      <UniqueIdentifier>{a1529de2-7a09-4cd0-a14e-1b108b297c7f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AudioDecoderMorse.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="AudioRecorder.h">
+    <ClInclude Include="MorseСode.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="MorseСode.h">
+    <ClInclude Include="ControlsID.h">
+      <Filter>Файлы заголовков\Зависимости</Filter>
+    </ClInclude>
+    <ClInclude Include="MyFunction.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="My_GUI.h">
+      <Filter>Файлы заголовков\Зависимости</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalVar.h">
+      <Filter>Файлы заголовков\Зависимости</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings.h">
+      <Filter>Файлы заголовков\Настройки</Filter>
+    </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>Файлы заголовков\Зависимости\VS</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Файлы заголовков\Зависимости\VS</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Файлы заголовков\Зависимости\VS</Filter>
+    </ClInclude>
+    <ClInclude Include="WavReaderWriter.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="WavFileStructures.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="WavReaderWriter.h">
+    <ClInclude Include="AudioRecorder.h">
       <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Resource.h">
-      <Filter>Файлы заголовков\Ресурсы</Filter>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>Файлы заголовков\Ресурсы</Filter>
-    </ClInclude>
-    <ClInclude Include="ControlsID.h">
-      <Filter>Файлы заголовков\Ресурсы</Filter>
-    </ClInclude>
-    <ClInclude Include="framework.h">
-      <Filter>Файлы заголовков\Ресурсы</Filter>
-    </ClInclude>
-    <ClInclude Include="TextOperations.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="ControlsRect.h">
-      <Filter>Файлы заголовков\Ресурсы</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AudioDecoderMorse.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="TextOperations.cpp">
+    <ClCompile Include="MyFunction.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="AudioRecorder.cpp">
@@ -66,6 +78,9 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="WavReaderWriter.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobalVar.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
@@ -84,14 +99,13 @@
     <Image Include="iconFile.ico">
       <Filter>Файлы ресурсов</Filter>
     </Image>
-    <Image Include="radist.png">
-      <Filter>Файлы ресурсов</Filter>
-    </Image>
-    <Image Include="bitmap1.bmp">
-      <Filter>Файлы ресурсов</Filter>
-    </Image>
     <Image Include="radist.bmp">
       <Filter>Файлы ресурсов</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Settings.ini">
+      <Filter>Файлы заголовков\Настройки</Filter>
+    </None>
   </ItemGroup>
 </Project>

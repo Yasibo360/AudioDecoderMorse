@@ -1,11 +1,15 @@
 #pragma once
 
+#include <vector>
+
 const int IDreserv = 200;
 
 const int IDPane1 = IDreserv + 10;
 const int IDPane2 = IDreserv + 20;
 const int IDPane3 = IDreserv + 30;
 const int IDPane4 = IDreserv + 40;
+
+const std::vector<int> IDPanes = { IDPane1, IDPane2, IDPane3, IDPane4 };
 
 const int IDBgrPanes = IDreserv + 1;
 const int IDButtPane1 = IDreserv + 2;

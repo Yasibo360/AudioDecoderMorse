@@ -133,20 +133,23 @@
     <ClInclude Include="AudioDecoderMorse.h" />
     <ClInclude Include="AudioRecorder.h" />
     <ClInclude Include="ControlsID.h" />
-    <ClInclude Include="ControlsRect.h" />
+    <ClInclude Include="My_GUI.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="GlobalVar.h" />
     <ClInclude Include="MorseСode.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="Settings.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="TextOperations.h" />
+    <ClInclude Include="MyFunction.h" />
     <ClInclude Include="WavFileStructures.h" />
     <ClInclude Include="WavReaderWriter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AudioDecoderMorse.cpp" />
     <ClCompile Include="AudioRecorder.cpp" />
+    <ClCompile Include="GlobalVar.cpp" />
     <ClCompile Include="MorseСode.cpp" />
-    <ClCompile Include="TextOperations.cpp" />
+    <ClCompile Include="MyFunction.cpp" />
     <ClCompile Include="WavReaderWriter.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -154,11 +157,12 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="AudioDecoderMorse.ico" />
-    <Image Include="bitmap1.bmp" />
     <Image Include="iconFile.ico" />
     <Image Include="radist.bmp" />
-    <Image Include="radist.png" />
     <Image Include="small.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Settings.ini" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
