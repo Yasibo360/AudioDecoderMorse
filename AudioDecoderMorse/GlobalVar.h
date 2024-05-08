@@ -14,13 +14,12 @@
 #include "MyFunction.h"
 
 #define MAX_LOADSTRING 256
-#define MAX_EDITSTRING 6000
+#define MAX_EDITSTRING 1000
 
 // Глобальные переменные окна:
 extern HINSTANCE hInst;                                // Текущий экземпляр
 extern WCHAR szTitle[MAX_LOADSTRING];                  // Текст строки заголовка
 extern WCHAR szWindowClass[MAX_LOADSTRING];            // Имя класса главного окна
-extern LPCWSTR szWndClassPane;
 
 // Глобальная структура настроек
 extern Settings settings;

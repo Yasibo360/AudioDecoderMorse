@@ -5,7 +5,7 @@
 // –азмеры дл€ меню и его кнопок
 struct Menu
 {
-	const int ID = IDBgrPanes;
+	const int ID = IDBgrMenu;
 
 	//  онстанта определ€ет соотношение меню к рабочей области
 	const int menuRatio = 8;

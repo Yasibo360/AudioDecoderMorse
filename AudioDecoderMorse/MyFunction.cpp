@@ -1,10 +1,61 @@
 #include "MyFunction.h"
 
-void OnCreate(HWND hWnd, HBRUSH hBrush)
+//
+//  ФУНКЦИЯ: MyRegisterClass()
+//
+//  ЦЕЛЬ: Регистрирует класс окна.
+//
+ATOM MyRegisterClass(HINSTANCE hInstance, WNDPROC WndProc, HBRUSH hbrBackground, LPCUWSTR szWindowClass)
 {
-	// Считываем настройки программы из файла настроек
-	settings.LoadSettings();
+	WNDCLASSEXW wcex;
 
+	wcex.cbSize = sizeof(WNDCLASSEX);
+
+	wcex.style = 0;
+	wcex.lpfnWndProc = WndProc;
+	wcex.cbClsExtra = 0;
+	wcex.cbWndExtra = 0;
+	wcex.hInstance = hInstance;
+	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDC_AUDIODECODERMORSE));
+	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+	wcex.hbrBackground = hbrBackground;
+	wcex.lpszMenuName = 0;
+	wcex.lpszClassName = szWindowClass;
+	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+
+	return RegisterClassExW(&wcex);
+}
+
+/*
+   ФУНКЦИЯ: InitInstance(HINSTANCE, int)
+
+   ЦЕЛЬ: Сохраняет маркер экземпляра и создает главное окно
+
+   КОММЕНТАРИИ:
+
+		В этой функции маркер экземпляра сохраняется в глобальной переменной, а также
+		создается и выводится главное окно программы.
+*/
+BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
+{
+	hInst = hInstance; // Сохранить маркер экземпляра в глобальной переменной
+
+	HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW & ~WS_THICKFRAME & ~WS_MAXIMIZEBOX,
+		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+
+	if (!hWnd)
+	{
+		return FALSE;
+	}
+
+	ShowWindow(hWnd, nCmdShow);
+	UpdateWindow(hWnd);
+
+	return TRUE;
+}
+
+void OnCreate(HWND hWnd)
+{
 	// Вывод окна на середину экрана и установка размерв
 	MoveWindow(
 		hWnd,
@@ -16,14 +67,14 @@ void OnCreate(HWND hWnd, HBRUSH hBrush)
 	);
 
 	// Создание GUI приложения
-	InitializeUI(hWnd, hBrush);
+	InitializeUI(hWnd);
 
 	// Установка локали (для отладки)
-	std::setlocale(LC_ALL, "");	
+	std::setlocale(LC_ALL, "");
 }
 
 // Инициализация элементов управления окна, создание кнопок, текстовых полей, и т.д.
-void InitializeUI(HWND hWnd, HBRUSH hBrush)
+void InitializeUI(HWND hWnd)
 {
 	RECT rc;
 
@@ -33,7 +84,7 @@ void InitializeUI(HWND hWnd, HBRUSH hBrush)
 	GetClientRect(hWnd, &rc);
 
 	InitControlsRect(rc);
-	
+
 	/*
 	  Создание меню навигации
 	*/
@@ -46,33 +97,29 @@ void InitializeUI(HWND hWnd, HBRUSH hBrush)
 		rc.right / gui.menu.menuRatio,
 		rc.bottom,
 		hWnd,
-		(HMENU)IDBgrPanes,
+		(HMENU)IDBgrMenu,
 		hInst,
 		nullptr);
-
-	hBrush = CreateSolidBrush(RGB(40, 40, 40)); // Создание кисти для фона кнопки
 
 	CreateWindowW(
 		L"BUTTON",
 		L"Главная",
 		WS_TABSTOP | WS_GROUP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_OWNERDRAW,
 		0,
-		gui.menu.rectMenu.bottom / 2 - 2 * gui.menu.sizeMenuButton.cy,
+		gui.menu.rectMenu.bottom / 2 - 2 * gui.menu.sizeMenuButton.cy - 2 * gui.sizeIndentation.cy/2,
 		gui.menu.sizeMenuButton.cx,
 		gui.menu.sizeMenuButton.cy,
 		hWnd,
 		(HMENU)IDButtPane1,
 		hInst,
 		nullptr);
-	InvalidateRect(GetDlgItem(hWnd, IDButtPane1), NULL, FALSE);
-	UpdateWindow(GetDlgItem(hWnd, IDButtPane1));
 
 	CreateWindowW(
 		L"BUTTON",
 		L"Расширенный режим",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_OWNERDRAW,
 		0,
-		gui.menu.rectMenu.bottom / 2 - gui.menu.sizeMenuButton.cy,
+		gui.menu.rectMenu.bottom / 2 - gui.menu.sizeMenuButton.cy - gui.sizeIndentation.cy/2,
 		gui.menu.sizeMenuButton.cx,
 		gui.menu.sizeMenuButton.cy,
 		hWnd,
@@ -98,7 +145,7 @@ void InitializeUI(HWND hWnd, HBRUSH hBrush)
 		L"О программе",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_OWNERDRAW,
 		0,
-		gui.menu.rectMenu.bottom / 2 + gui.menu.sizeMenuButton.cy,
+		gui.menu.rectMenu.bottom / 2 + gui.menu.sizeMenuButton.cy + gui.sizeIndentation.cy/2,
 		gui.menu.sizeMenuButton.cx,
 		gui.menu.sizeMenuButton.cy,
 		hWnd,
@@ -110,7 +157,7 @@ void InitializeUI(HWND hWnd, HBRUSH hBrush)
 	  Создание панелей
 	*/
 	CreateWindow(
-		szWndClassPane,
+		L"STATIC",
 		L"",
 		WS_VISIBLE | WS_CHILD,
 		gui.rectPage.left,
@@ -121,9 +168,10 @@ void InitializeUI(HWND hWnd, HBRUSH hBrush)
 		(HMENU)IDPane1,
 		hInst,
 		nullptr);
+	SetWindowLongPtrW(GetDlgItem(hWnd, IDPane1), GWLP_WNDPROC, (LONG_PTR)WndProc);
 
 	CreateWindow(
-		szWndClassPane,
+		L"STATIC",
 		L"",
 		WS_VISIBLE | WS_CHILD,
 		gui.rectPage.left,
@@ -134,10 +182,10 @@ void InitializeUI(HWND hWnd, HBRUSH hBrush)
 		(HMENU)IDPane2,
 		hInst,
 		nullptr);
-	ShowWindow(GetDlgItem(hWnd, IDPane2), SW_HIDE);
+	SetWindowLongPtrW(GetDlgItem(hWnd, IDPane2), GWLP_WNDPROC, (LONG_PTR)WndProc);
 
 	CreateWindow(
-		szWndClassPane,
+		L"STATIC",
 		L"",
 		WS_VISIBLE | WS_CHILD,
 		gui.rectPage.left,
@@ -148,10 +196,10 @@ void InitializeUI(HWND hWnd, HBRUSH hBrush)
 		(HMENU)IDPane3,
 		hInst,
 		nullptr);
-	ShowWindow(GetDlgItem(hWnd, IDPane3), SW_HIDE);
+	SetWindowLongPtrW(GetDlgItem(hWnd, IDPane3), GWLP_WNDPROC, (LONG_PTR)WndProc);
 
 	CreateWindow(
-		szWndClassPane,
+		L"STATIC",
 		L"",
 		WS_VISIBLE | WS_CHILD,
 		gui.rectPage.left,
@@ -162,7 +210,7 @@ void InitializeUI(HWND hWnd, HBRUSH hBrush)
 		(HMENU)IDPane4,
 		hInst,
 		nullptr);
-	ShowWindow(GetDlgItem(hWnd, IDPane4), SW_HIDE);
+	SetWindowLongPtrW(GetDlgItem(hWnd, IDPane4), GWLP_WNDPROC, (LONG_PTR)WndProc);
 
 	/*
 	  Создание контролов для 1-ой панели
@@ -173,10 +221,10 @@ void InitializeUI(HWND hWnd, HBRUSH hBrush)
 		L"BUTTON",												// Predefined class; Unicode assumed 
 		L"Прослушать",											// Button text 
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,  // Styles 
-		gui.pane1.rectPane1ButtonRec.left,							// x position 
-		gui.pane1.rectPane1ButtonRec.top,								// y position 
-		gui.pane1.rectPane1ButtonRec.right,							// Button width
-		gui.pane1.rectPane1ButtonRec.bottom,							// Button height
+		gui.pane1.rectPane1ButtonRec.left,						// x position 
+		gui.pane1.rectPane1ButtonRec.top,						// y position 
+		gui.pane1.rectPane1ButtonRec.right,						// Button width
+		gui.pane1.rectPane1ButtonRec.bottom,					// Button height
 		GetDlgItem(hWnd, IDPane1),								// Parent window
 		(HMENU)IDPane1ButtonRec,								// Child window
 		hInst,
@@ -299,16 +347,25 @@ void InitializeUI(HWND hWnd, HBRUSH hBrush)
 		hInst,
 		nullptr);
 
-	// Загрузка иконки
+	// Загрузка и установка иконки
 	HICON hIcon = LoadIconW(hInst, MAKEINTRESOURCE(IDI_ICON1));
-
-	// Установка иконки кнопке
 	SendMessage(GetDlgItem(GetDlgItem(hWnd, IDPane3), IDPane3ButtAddDict), BM_SETIMAGE, IMAGE_ICON, (LPARAM)hIcon);
 
 	// Создание контролов для 4-ой панели
+	CreateWindow(
+		L"STATIC",
+		L"",
+		WS_VISIBLE | WS_CHILD | SS_BITMAP,
+		gui.pane4.rectPane4Picture.left,
+		gui.pane4.rectPane4Picture.top,
+		gui.pane4.rectPane4Picture.right,
+		gui.pane4.rectPane4Picture.bottom,
+		GetDlgItem(hWnd, IDPane4),
+		(HMENU)IDPane4Picture,
+		hInst,
+		nullptr);
 
-	ShowWindow(GetDlgItem(hWnd, IDPane1), SW_SHOW);
-	UpdateWindow(hWnd);
+	SelectPane(hWnd, IDPane1);
 }
 
 // Инициализация глобальных переменных
@@ -391,10 +448,10 @@ void InitControlsRect(RECT rc)
 	// Инициализация размеров контролов для страницы описания
 	gui.pane4.rectPane4Picture =
 	{
-		gui.rectPage.right / 2 + gui.sizeIndentation.cx,
-		gui.rectPage.top + 10 * gui.sizeIndentation.cy,
-		200,
-		300
+		gui.rectPage.left,
+		gui.rectPage.top,
+		gui.rectPage.right,
+		gui.rectPage.bottom
 	};
 
 	return;
@@ -404,7 +461,7 @@ void InitControlsRect(RECT rc)
 // Функция DrawButton
 // Перерисовывает кнопку
 // =====================================
-void DrawButton(HINSTANCE hInst, LPDRAWITEMSTRUCT lpInfo, HBRUSH hBrush)
+void DrawButton(HINSTANCE hInst, LPDRAWITEMSTRUCT lpInfo)
 {
 	TCHAR szBuffer[MAX_LOADSTRING]; // Буфер для хранения загруженной строки
 	int countChar = 0;
@@ -443,15 +500,15 @@ void DrawButton(HINSTANCE hInst, LPDRAWITEMSTRUCT lpInfo, HBRUSH hBrush)
 		return;
 	}
 
+	HBRUSH hBrush = CreateSolidBrush(settings.windowColorBckgdMenuButt);
+
 	FillRect(lpInfo->hDC, &lpInfo->rcItem, hBrush);
 
 	// Если кнопка выбрана, рисуем ее в нажатом
 	// состоянии
 	if (lpInfo->itemState & ODS_SELECTED)
 	{
-		FillRect(lpInfo->hDC, &lpInfo->rcItem, hBrush);
-		FillRect(lpInfo->hDC, &lpInfo->rcItem, hBrush);
-		HBRUSH hBrushPressed = CreateSolidBrush(RGB(60, 60, 60));
+		HBRUSH hBrushPressed = CreateSolidBrush(settings.windowColorBckgdMenuButtPressed);
 		InflateRect(&lpInfo->rcItem, -4, -4);
 		FillRect(lpInfo->hDC, &lpInfo->rcItem, hBrushPressed);
 		DeleteObject(hBrushPressed);
@@ -467,18 +524,216 @@ void DrawButton(HINSTANCE hInst, LPDRAWITEMSTRUCT lpInfo, HBRUSH hBrush)
 		SetTextColor(lpInfo->hDC, RGB(255, 255, 255));
 		DrawTextW(lpInfo->hDC, szBuffer, countChar, &lpInfo->rcItem, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 	}
+	DeleteObject(hBrush); // Удаление кисти
 }
 
-void SelectPage(HWND hWnd, int ID)
+void SelectPane(HWND& hWnd, int ID)
 {
-	for (size_t i = 0; i < IDPanes.size() - 1; i++)
+	for (size_t i = 0; i < IDPanes.size(); i++)
 	{
 		if (IDPanes[i] == ID) {
 			ShowWindow(GetDlgItem(hWnd, IDPanes[i]), SW_SHOW);
 		}
 		else {
 			ShowWindow(GetDlgItem(hWnd, IDPanes[i]), SW_HIDE);
-		}		
+		}
+	}
+}
+
+void DrawPane1(HWND& hWnd, HINSTANCE& hInst, HDC& hdc)
+{
+	int countChar = 0;
+	TCHAR szBuffer[MAX_LOADSTRING]; // Буфер для хранения загруженной строки
+
+	// Загружаем строку с идентификатором 104 из таблицы строк ресурсов			
+	LoadStringW(hInst, 104, szBuffer, MAX_LOADSTRING);
+	countChar = CountCharactersToEnd(szBuffer, MAX_LOADSTRING);
+	TextOutW(hdc, gui.pane1.rectPane1EditRes.left, gui.pane1.rectPane1EditRes.top - 2 * gui.sizeIndentation.cy, szBuffer, countChar);
+}
+
+void DrawPane2(HWND& hWnd, HINSTANCE& hInst, HDC& hdc)
+{
+	int countChar = 0;
+	TCHAR szBuffer[MAX_LOADSTRING]; // Буфер для хранения загруженной строки
+
+
+}
+
+void DrawPane3(HWND& hWnd, HINSTANCE& hInst, HDC& hdc)
+{
+	int countChar = 0;
+	TCHAR szBuffer[MAX_LOADSTRING]; // Буфер для хранения загруженной строки
+
+	LoadStringW(hInst, 105, szBuffer, MAX_LOADSTRING);
+	countChar = CountCharactersToEnd(szBuffer, MAX_LOADSTRING);
+	TextOutW(hdc, gui.pane3.rectPane3EditText.left, gui.pane3.rectPane3EditText.top - 2 * gui.sizeIndentation.cy, szBuffer, countChar);
+
+	LoadStringW(hInst, 106, szBuffer, MAX_LOADSTRING);
+	countChar = CountCharactersToEnd(szBuffer, MAX_LOADSTRING);
+	TextOutW(hdc, gui.pane3.rectPane3EditCode.left, gui.pane3.rectPane3EditCode.top - 2 * gui.sizeIndentation.cy, szBuffer, countChar);
+
+	LoadStringW(hInst, 107, szBuffer, MAX_LOADSTRING);
+	countChar = CountCharactersToEnd(szBuffer, MAX_LOADSTRING);
+	TextOutW(hdc, gui.pane3.rectPane3ListDict.left, gui.pane3.rectPane3ListDict.top - 2 * gui.sizeIndentation.cy, szBuffer, countChar);
+}
+
+void DrawPane4(HWND& hWnd, HINSTANCE& hInst, HDC& hdc)
+{
+	int countChar = 0;
+	TCHAR szBuffer[MAX_LOADSTRING]; // Буфер для хранения загруженной строки
+
+	DrawImage(hWnd, hInst, hdc, IDB_BITMAP1);
+
+	LoadStringW(hInst, 108, szBuffer, MAX_LOADSTRING);
+	countChar = CountCharactersToEnd(szBuffer, MAX_LOADSTRING);
+
+	// Создание нового шрифта
+	HFONT hFont = CreateFont(
+		40, // Высота шрифта
+		0, // Ширина шрифта
+		0, // Угол поворота шрифта
+		0, // Угол наклона шрифта
+		FW_BOLD, // Толщина шрифта
+		FALSE, // Курсив
+		FALSE, // Подчеркивание
+		FALSE, // Зачеркивание
+		DEFAULT_CHARSET, // Набор символов
+		OUT_DEFAULT_PRECIS, // Точность вывода
+		CLIP_DEFAULT_PRECIS, // Точность отсечения
+		DEFAULT_QUALITY, // Качество шрифта
+		DEFAULT_PITCH | FF_SWISS, // Начертание шрифта
+		L"Arial" // Имя шрифта
+	);
+
+	// Выбор нового шрифта для контекста устройства
+	HGDIOBJ oldFont = SelectObject(hdc, hFont);
+
+	TextOutW(
+		hdc,
+		gui.rectPage.right / 2 - 12 * gui.sizeIndentation.cx,
+		gui.rectPage.top + 6 * gui.sizeIndentation.cy,
+		szBuffer,
+		countChar
+	);
+
+	// Создание сплошной кисти с белым цветом
+	HBRUSH brush = CreateSolidBrush(RGB(255, 255, 255));
+
+	// Заполнение прямоугольника кистью
+	RECT rectText = {
+		gui.rectPage.right - 450 - 4 * gui.sizeIndentation.cy,
+		gui.rectPage.top + 14 * gui.sizeIndentation.cy,
+		gui.rectPage.right - 4 * gui.sizeIndentation.cy,
+		gui.rectPage.top + 300 + 14 * gui.sizeIndentation.cy
+	};
+	FillRect(hdc, &rectText, brush);
+
+	// Выбор нового шрифта для контекста устройства
+	SelectObject(hdc, oldFont);
+
+	SetTextColor(hdc, RGB(0, 0, 0));
+	SetBkMode(hdc, TRANSPARENT); // Установка режима прозрачного фона	
+	WCHAR text[] = L"Данное приложение разрабатывалось в рамках проекта ВКР по направлению 09.03.01\
+				\n\nДанное приложение представляет из себя Аудидекодер Морзе.\
+				\nОно способно расшифровывать аудиосигнал с зашифрованным сообщением на азбуке Морзе.";
+	rectText = {
+		gui.rectPage.right - 450 - 3 * gui.sizeIndentation.cy,
+		gui.rectPage.top + 15 * gui.sizeIndentation.cy,
+		gui.rectPage.right - 5 * gui.sizeIndentation.cy,
+		gui.rectPage.top + 300 + 13 * gui.sizeIndentation.cy
+	};
+	DrawTextW(hdc, text, -1, &rectText, DT_LEFT | DT_TOP | DT_WORDBREAK);
+
+	// Удаление кисти
+	DeleteObject(brush);
+
+	// Освобождение шрифта после использования
+	DeleteObject(hFont);
+}
+
+void RecordWithDecode()
+{
+	if (!recorder.IsRecording()) {
+		recorder.StartRecording();
+	}
+	else {
+		recorder.StopRecording();
+		// Добавить расшифровку аудиосообщения из записанного файла
+
+	}
+}
+
+void DrawImage(HWND& hWnd, HINSTANCE& hInst, HDC& hdc, int IDB_BITMAP)
+{
+	HBITMAP hBitmap = (HBITMAP)LoadImage(
+		hInst, // Дескриптор экземпляра приложения
+		MAKEINTRESOURCE(IDB_BITMAP1), // Идентификатор ресурса изображения
+		IMAGE_BITMAP, // Тип изображения
+		0, 0, // Ширина и высота загружаемого изображения (0 для автоопределения)
+		LR_DEFAULTCOLOR // Флаги загрузки
+	);
+
+	// Создание COMPATIBLE DC для рисования
+	HDC hdcMem = CreateCompatibleDC(hdc);
+	if (hdcMem == NULL) {
+		ReleaseDC(hWnd, hdc);
+		return;
+	}
+
+	// Выбор изображения в COMPATIBLE DC
+	HBITMAP hOldBitmap = (HBITMAP)SelectObject(hdcMem, hBitmap);
+
+	BITMAP bm;
+	GetObject(hBitmap, sizeof(bm), (LPSTR)&bm);
+
+	// Рисование изображения в окне
+	BitBlt(hdc, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem, 0, 0, SRCCOPY);
+
+	// Очистка ресурсов
+	SelectObject(hdcMem, hOldBitmap);
+	DeleteDC(hdcMem);
+}
+
+void PlayCodeMorse(HWND& hWnd)
+{
+	WCHAR buffer[MAX_EDITSTRING];
+	std::wstring morseCode;
+
+	GetWindowTextW(GetDlgItem(hWnd, IDPane3EditCode), buffer, MAX_LOADSTRING);
+	for (size_t i = 0; (i < sizeof(buffer) / 2 - 1) && (buffer[i] != 0); i++)
+	{
+		morseCode += buffer[i];
+	}
+	morse.PlayMorseCode(morseCode);
+}
+
+void ChangeEditText(HWND& hWnd)
+{
+	WCHAR buffer[MAX_EDITSTRING];
+	std::wstring morseChar;
+	std::wstring morseCode;
+
+	GetWindowTextW(GetDlgItem(hWnd, IDPane3EditText), buffer, MAX_EDITSTRING);
+	for (size_t i = 0; (i < sizeof(buffer) / 2 - 1) && (buffer[i] != 0); i++)
+	{
+		morseChar += buffer[i];
+	}
+	morseCode = morse.CharToMorse(morseChar);
+	if (morseCode.length() != 0)
+	{
+		for (size_t i = 0; i < morseCode.length() - 1; i++)
+		{
+			buffer[i] = morseCode[i];
+			if (i == morseCode.length() - 2)
+			{
+				buffer[i + 1] = '\0';
+			}
+		}
+		SetWindowTextW(GetDlgItem(hWnd, IDPane3EditCode), buffer);
+	}
+	else
+	{
+		SetWindowTextW(GetDlgItem(hWnd, IDPane3EditCode), 0);
 	}
 }
 

@@ -11,7 +11,7 @@ const int IDPane4 = IDreserv + 40;
 
 const std::vector<int> IDPanes = { IDPane1, IDPane2, IDPane3, IDPane4 };
 
-const int IDBgrPanes = IDreserv + 1;
+const int IDBgrMenu = IDreserv + 1;
 const int IDButtPane1 = IDreserv + 2;
 const int IDButtPane2 = IDreserv + 3;
 const int IDButtPane3 = IDreserv + 4;

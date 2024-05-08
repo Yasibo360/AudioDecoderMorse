@@ -12,6 +12,7 @@ struct Settings
 	COLORREF windowColorBckgd;
 	COLORREF windowColorBckgdMenu;
 	COLORREF windowColorBckgdMenuButt;
+	COLORREF windowColorBckgdMenuButtPressed;
 	COLORREF windowColorText;
 	
 	// Загрузка настроек из INI-файла
@@ -77,7 +78,7 @@ struct Settings
 		{
 			std::wstring colorStr = value.substr(pos + 1, value.length());
 			if (!colorStr.empty()) {
-				windowColorBckgdMenu = std::stol(colorStr);
+				windowColorBckgdMenu = convertWstringToColorRef(colorStr);
 			}
 		}
 
@@ -93,6 +94,18 @@ struct Settings
 			}
 		}
 
+		GetPrivateProfileStringW(L"Colors", L"BackgroundMenuButtonPressed", L"", buffer, 1024, lpFileName);
+		readWStringFromBuffer(buffer, value, 1024);
+
+		pos = value.find(L'#');
+		if (pos != std::wstring::npos)
+		{
+			std::wstring colorStr = value.substr(pos + 1, value.length());
+			if (!colorStr.empty()) {
+				windowColorBckgdMenuButtPressed = convertWstringToColorRef(colorStr);
+			}
+		}
+		
 		GetPrivateProfileStringW(L"Colors", L"Text", L"", buffer, 1024, lpFileName);
 		readWStringFromBuffer(buffer, value, 1024);
 
