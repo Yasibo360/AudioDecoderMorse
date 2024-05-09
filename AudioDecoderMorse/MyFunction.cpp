@@ -725,15 +725,22 @@ void DrawImage(HWND& hWnd, HINSTANCE& hInst, HDC& hdc, int IDB_BITMAP)
 
 void PlayCodeMorse(HWND& hWnd)
 {
-	WCHAR buffer[MAX_EDITSTRING];
-	std::wstring morseCode;
+    WCHAR buffer[MAX_EDITSTRING];
+    std::wstring morseCode;
 
-	GetWindowTextW(GetDlgItem(hWnd, IDPane3EditCode), buffer, MAX_LOADSTRING);
-	for (size_t i = 0; (i < sizeof(buffer) / 2 - 1) && (buffer[i] != 0); i++)
-	{
-		morseCode += buffer[i];
+    GetWindowTextW(GetDlgItem(hWnd, IDPane3EditCode), buffer, MAX_LOADSTRING);
+    for (size_t i = 0; (i < sizeof(buffer) / 2 - 1) && (buffer[i] != 0); i++)
+    {
+        morseCode += buffer[i];
+    }
+
+	if (!morseCode.empty()) {
+		std::thread thread([morseCode = std::move(morseCode)]() mutable {
+			MorseÑode morse;
+			morse.PlayMorseCode(morseCode);
+			});
+		thread.detach();
 	}
-	morse.PlayMorseCode(morseCode);
 }
 
 void ChangeEditText(HWND& hWnd)

@@ -3,6 +3,7 @@
 #define NOMINMAX
 
 #include <Windows.h>
+#include <thread>
 #include <SFML/Graphics.hpp>
 #include "Resource.h"
 #include "framework.h"
@@ -39,3 +40,4 @@ extern My_GUI gui;
 // Мои глобальные переменные
 extern MorseСode morse;
 extern AudioRecorder recorder;
+extern std::thread threadPlaingMorse;

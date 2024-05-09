@@ -20,3 +20,4 @@ My_GUI gui;
 // Мои глобальные переменные
 MorseСode morse;
 AudioRecorder recorder("recorded.wav");
+std::thread threadPlaingMorse; 

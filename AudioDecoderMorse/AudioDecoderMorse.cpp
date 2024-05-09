@@ -236,9 +236,6 @@ LRESULT CALLBACK ButtonProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 	PAINTSTRUCT ps;
 	HDC hdc;
 	RECT rc;
-	HFONT hFont{};
-	HBRUSH hBrush{};
-	HRGN hRegion{};
 
 	switch (message)
 	{
@@ -248,7 +245,7 @@ LRESULT CALLBACK ButtonProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 		GetClientRect(hWnd, &rc);
 
 		// Создание нового шрифта
-		hFont = CreateFont(
+		HFONT hFont = CreateFont(
 			20,			// Высота шрифта
 			0,			// Ширина шрифта
 			0,			// Угол поворота шрифта
@@ -269,8 +266,8 @@ LRESULT CALLBACK ButtonProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 		SelectObject(hdc, hFont);
 
 		// Рисуем фон кнопки
-		hBrush = CreateSolidBrush(settings.windowColorBckgdRecButton);
-		hRegion = CreateEllipticRgn(0, 0, 0, 0);
+		HBRUSH hBrush = CreateSolidBrush(settings.windowColorBckgdRecButton);
+		HRGN hRegion = CreateEllipticRgn(0, 0, 0, 0);
 
 		GetWindowRgn(hWnd, hRegion);
 		FillRgn(hdc, hRegion, hBrush);
@@ -293,6 +290,9 @@ LRESULT CALLBACK ButtonProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 
 		// Освобождаем ресурсы
 		DeleteObject(hPen);
+		DeleteObject(hRegion);
+		DeleteObject(hBrush);
+		DeleteObject(hFont);
 		EndPaint(hWnd, &ps);
 	}
 	break;
@@ -303,7 +303,7 @@ LRESULT CALLBACK ButtonProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 		GetClientRect(hWnd, &rc);
 
 		// Создание нового шрифта
-		hFont = CreateFont(
+		HFONT hFont = CreateFont(
 			20,			// Высота шрифта
 			0,			// Ширина шрифта
 			0,			// Угол поворота шрифта
@@ -323,8 +323,8 @@ LRESULT CALLBACK ButtonProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 		// Выбор нового шрифта для контекста устройства
 		SelectObject(hdc, hFont);
 
-		hBrush = CreateSolidBrush(settings.windowColorBckgdRecButton2);
-		hRegion = CreateEllipticRgn(0, 0, 0, 0);
+		HBRUSH hBrush = CreateSolidBrush(settings.windowColorBckgdRecButton2);
+		HRGN hRegion = CreateEllipticRgn(0, 0, 0, 0);
 
 		GetWindowRgn(hWnd, hRegion);
 		FillRgn(hdc, hRegion, hBrush);
@@ -342,6 +342,7 @@ LRESULT CALLBACK ButtonProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 		ReleaseDC(hWnd, hdc);
 		DeleteObject(hRegion);
 		DeleteObject(hBrush);
+		DeleteObject(hFont);
 	}
 	break;
 	case WM_LBUTTONUP:
@@ -354,9 +355,6 @@ LRESULT CALLBACK ButtonProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 	break;
 	case WM_DESTROY:
 	{
-		DeleteObject(hRegion);
-		DeleteObject(hBrush);
-		DeleteObject(hFont);
 		PostQuitMessage(0);
 	}
 	break;
