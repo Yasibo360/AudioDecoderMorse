@@ -21,6 +21,11 @@ extern HINSTANCE hInst;                                // Текущий экземпляр
 extern WCHAR szTitle[MAX_LOADSTRING];                  // Текст строки заголовка
 extern WCHAR szWindowClass[MAX_LOADSTRING];            // Имя класса главного окна
 
+extern HWND hWndPane1;
+extern HWND hWndPane2;
+extern HWND hWndPane3;
+extern HWND hWndPane4;
+
 // Глобальная структура настроек
 extern Settings settings;
 

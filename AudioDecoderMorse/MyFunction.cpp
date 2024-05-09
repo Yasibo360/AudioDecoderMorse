@@ -91,7 +91,7 @@ void InitializeUI(HWND hWnd)
 	CreateWindowW(
 		L"STATIC",
 		L"",
-		WS_VISIBLE | WS_CHILD | SS_SIMPLE,
+		WS_VISIBLE | WS_CHILD | SS_OWNERDRAW,
 		rc.left,
 		rc.top,
 		rc.right / gui.menu.menuRatio,
@@ -106,7 +106,7 @@ void InitializeUI(HWND hWnd)
 		L"Главная",
 		WS_TABSTOP | WS_GROUP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_OWNERDRAW,
 		0,
-		gui.menu.rectMenu.bottom / 2 - 2 * gui.menu.sizeMenuButton.cy - 2 * gui.sizeIndentation.cy/2,
+		gui.menu.rectMenu.bottom / 2 - 2 * gui.menu.sizeMenuButton.cy - 2 * gui.sizeIndentation.cy / 2,
 		gui.menu.sizeMenuButton.cx,
 		gui.menu.sizeMenuButton.cy,
 		hWnd,
@@ -119,7 +119,7 @@ void InitializeUI(HWND hWnd)
 		L"Расширенный режим",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_OWNERDRAW,
 		0,
-		gui.menu.rectMenu.bottom / 2 - gui.menu.sizeMenuButton.cy - gui.sizeIndentation.cy/2,
+		gui.menu.rectMenu.bottom / 2 - gui.menu.sizeMenuButton.cy - gui.sizeIndentation.cy / 2,
 		gui.menu.sizeMenuButton.cx,
 		gui.menu.sizeMenuButton.cy,
 		hWnd,
@@ -145,7 +145,7 @@ void InitializeUI(HWND hWnd)
 		L"О программе",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_OWNERDRAW,
 		0,
-		gui.menu.rectMenu.bottom / 2 + gui.menu.sizeMenuButton.cy + gui.sizeIndentation.cy/2,
+		gui.menu.rectMenu.bottom / 2 + gui.menu.sizeMenuButton.cy + gui.sizeIndentation.cy / 2,
 		gui.menu.sizeMenuButton.cx,
 		gui.menu.sizeMenuButton.cy,
 		hWnd,
@@ -156,7 +156,7 @@ void InitializeUI(HWND hWnd)
 	/*
 	  Создание панелей
 	*/
-	CreateWindow(
+	hWndPane1 = CreateWindow(
 		L"STATIC",
 		L"",
 		WS_VISIBLE | WS_CHILD,
@@ -170,7 +170,7 @@ void InitializeUI(HWND hWnd)
 		nullptr);
 	SetWindowLongPtrW(GetDlgItem(hWnd, IDPane1), GWLP_WNDPROC, (LONG_PTR)WndProc);
 
-	CreateWindow(
+	hWndPane2 = CreateWindow(
 		L"STATIC",
 		L"",
 		WS_VISIBLE | WS_CHILD,
@@ -184,7 +184,7 @@ void InitializeUI(HWND hWnd)
 		nullptr);
 	SetWindowLongPtrW(GetDlgItem(hWnd, IDPane2), GWLP_WNDPROC, (LONG_PTR)WndProc);
 
-	CreateWindow(
+	hWndPane3 = CreateWindow(
 		L"STATIC",
 		L"",
 		WS_VISIBLE | WS_CHILD,
@@ -198,7 +198,7 @@ void InitializeUI(HWND hWnd)
 		nullptr);
 	SetWindowLongPtrW(GetDlgItem(hWnd, IDPane3), GWLP_WNDPROC, (LONG_PTR)WndProc);
 
-	CreateWindow(
+	hWndPane4 = CreateWindow(
 		L"STATIC",
 		L"",
 		WS_VISIBLE | WS_CHILD,
@@ -525,6 +525,17 @@ void DrawButton(HINSTANCE hInst, LPDRAWITEMSTRUCT lpInfo)
 		DrawTextW(lpInfo->hDC, szBuffer, countChar, &lpInfo->rcItem, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 	}
 	DeleteObject(hBrush); // Удаление кисти
+}
+
+void DrawStatic(HINSTANCE hInst, LPDRAWITEMSTRUCT lpInfo)
+{
+	HDC hdc = lpInfo->hDC;
+	RECT rect = lpInfo->rcItem;
+
+	// Установить цвет фона
+	HBRUSH hBrush = CreateSolidBrush(settings.windowColorBckgdMenu);
+	FillRect(hdc, &rect, hBrush);
+	DeleteObject(hBrush);
 }
 
 void SelectPane(HWND& hWnd, int ID)

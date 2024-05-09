@@ -25,6 +25,8 @@ void InitControlsRect(RECT rc);
 // Функции для управления GUI
 void DrawButton(HINSTANCE hInst, LPDRAWITEMSTRUCT lpInfo);
 
+void DrawStatic(HINSTANCE hInst, LPDRAWITEMSTRUCT lpInfo);
+
 void SelectPane(HWND& hWnd, int ID);
 
 void DrawPane1(HWND& hWnd, HINSTANCE& hInst, HDC& hdc);

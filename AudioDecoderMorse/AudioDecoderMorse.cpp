@@ -66,20 +66,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		OnCreate(hWnd);
 	}
 	break;
-	//case WM_CTLCOLORSTATIC:
-	//{
-	//	HWND ee = (HWND)lParam;
-	//	HWND fe = GetDlgItem(hWnd, IDBgrMenu);
-	//	if ((HWND)lParam == GetDlgItem(hWnd, IDBgrMenu)) {
-	//		HDC hdcс = (HDC)wParam;
-	//		//SetBkMode(hdcс, TRANSPARENT);
-	//		SetBkColor(hdcс, RGB(0, 0, 255));
-	//		SetTextColor(hdcс, RGB(0, 0, 255));
-	//		return (int)GetStockObject(NULL_BRUSH);
-	//		//return (LONG)CreateSolidBrush(GetSysColor(COLOR_3DFACE));
-	//	}
-	//}
-	//break;
+	case WM_CTLCOLORSTATIC:
+	{
+		HWND ee = (HWND)lParam;
+		HWND fe = GetDlgItem(hWnd, IDBgrMenu);
+		if ((HWND)lParam == GetDlgItem(hWnd, IDBgrMenu)) {
+			HDC hdcс = (HDC)wParam;
+			//SetBkMode(hdcс, TRANSPARENT);
+			SetBkColor(hdcс, RGB(0, 0, 255));
+			SetTextColor(hdcс, RGB(0, 0, 255));
+			return (int)GetStockObject(NULL_BRUSH);
+			//return (LONG)CreateSolidBrush(GetSysColor(COLOR_3DFACE));
+		}
+	}
+	break;
 	case WM_COMMAND:
 	{
 		switch HIWORD(wParam)
@@ -224,7 +224,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	break;
 	case WM_DRAWITEM:
 	{
-		DrawButton(hInst, (LPDRAWITEMSTRUCT)lParam);
+		LPDRAWITEMSTRUCT lpDrawItem = (LPDRAWITEMSTRUCT)lParam;
+
+		switch (lpDrawItem->CtlID)
+		{
+		case IDBgrMenu:
+		{
+			DrawStatic(hInst, lpDrawItem);
+		}
+		break;
+		default:
+			DrawButton(hInst, lpDrawItem);
+		}	
 	}
 	break;
 	case WM_DESTROY:

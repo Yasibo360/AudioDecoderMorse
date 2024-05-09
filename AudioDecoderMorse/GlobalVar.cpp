@@ -6,6 +6,11 @@ WCHAR szTitle[MAX_LOADSTRING];                  // Текст строки заголовка
 WCHAR szWindowClass[MAX_LOADSTRING];            // Имя класса главного окна
 LPCWSTR szWndClassPane;
 
+HWND hWndPane1;
+HWND hWndPane2;
+HWND hWndPane3;
+HWND hWndPane4;
+
 // Глобальная структура настроек
 Settings settings;
 
