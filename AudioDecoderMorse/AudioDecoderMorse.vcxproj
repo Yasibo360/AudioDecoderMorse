@@ -141,8 +141,6 @@
     <ClInclude Include="Settings.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="MyFunction.h" />
-    <ClInclude Include="WavFileStructures.h" />
-    <ClInclude Include="WavReaderWriter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AudioDecoderMorse.cpp" />
@@ -150,7 +148,6 @@
     <ClCompile Include="GlobalVar.cpp" />
     <ClCompile Include="MorseСode.cpp" />
     <ClCompile Include="MyFunction.cpp" />
-    <ClCompile Include="WavReaderWriter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="AudioDecoderMorse.rc" />
