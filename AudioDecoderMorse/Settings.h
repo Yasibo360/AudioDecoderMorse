@@ -13,8 +13,10 @@ struct Settings
 	COLORREF windowColorBckgdMenu;
 	COLORREF windowColorBckgdMenuButt;
 	COLORREF windowColorBckgdMenuButtPressed;
+	COLORREF windowColorBckgdRecButton;
+	COLORREF windowColorBckgdRecButton2;
 	COLORREF windowColorText;
-	
+
 	// Загрузка настроек из INI-файла
 	// Обновление значений полей структуры на загруженные настройки
 	void LoadSettings()
@@ -106,6 +108,30 @@ struct Settings
 			}
 		}
 		
+		GetPrivateProfileStringW(L"Colors", L"BackgroundRecButton", L"", buffer, 1024, lpFileName);
+		readWStringFromBuffer(buffer, value, 1024);
+
+		pos = value.find(L'#');
+		if (pos != std::wstring::npos)
+		{
+			std::wstring colorStr = value.substr(pos + 1, value.length());
+			if (!colorStr.empty()) {
+				windowColorBckgdRecButton = convertWstringToColorRef(colorStr);
+			}
+		}
+
+		GetPrivateProfileStringW(L"Colors", L"BackgroundRecButton2", L"", buffer, 1024, lpFileName);
+		readWStringFromBuffer(buffer, value, 1024);
+
+		pos = value.find(L'#');
+		if (pos != std::wstring::npos)
+		{
+			std::wstring colorStr = value.substr(pos + 1, value.length());
+			if (!colorStr.empty()) {
+				windowColorBckgdRecButton2 = convertWstringToColorRef(colorStr);
+			}
+		}
+
 		GetPrivateProfileStringW(L"Colors", L"Text", L"", buffer, 1024, lpFileName);
 		readWStringFromBuffer(buffer, value, 1024);
 

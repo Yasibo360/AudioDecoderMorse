@@ -4,7 +4,7 @@
 HINSTANCE hInst;                                // Текущий экземпляр
 WCHAR szTitle[MAX_LOADSTRING];                  // Текст строки заголовка
 WCHAR szWindowClass[MAX_LOADSTRING];            // Имя класса главного окна
-LPCWSTR szWndClassPane;
+WCHAR szRecButtClass[MAX_LOADSTRING];           // Имя класса кнопки прослушки
 
 HWND hWndPane1;
 HWND hWndPane2;

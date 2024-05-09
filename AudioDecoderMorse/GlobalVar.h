@@ -1,6 +1,9 @@
 #pragma once
 
+#define NOMINMAX
+
 #include <Windows.h>
+#include <SFML/Graphics.hpp>
 #include "Resource.h"
 #include "framework.h"
 
@@ -20,6 +23,7 @@
 extern HINSTANCE hInst;                                // Текущий экземпляр
 extern WCHAR szTitle[MAX_LOADSTRING];                  // Текст строки заголовка
 extern WCHAR szWindowClass[MAX_LOADSTRING];            // Имя класса главного окна
+extern WCHAR szRecButtClass[MAX_LOADSTRING];           // Имя класса кнопки прослушки
 
 extern HWND hWndPane1;
 extern HWND hWndPane2;

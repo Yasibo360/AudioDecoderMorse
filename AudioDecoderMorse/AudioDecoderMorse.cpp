@@ -15,12 +15,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	// Инициализация глобальных строк
 	LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 	LoadStringW(hInstance, IDC_AUDIODECODERMORSE, szWindowClass, MAX_LOADSTRING);
+	LoadStringW(hInstance, IDC_AUDIORECODER, szRecButtClass, MAX_LOADSTRING);
 
 	// Считываем настройки программы из файла настроек
 	settings.LoadSettings();
 
 	// Регистрация классов
 	MyRegisterClass(hInstance, WndProc, CreateSolidBrush(settings.windowColorBckgd), szWindowClass);
+	MyRegisterClass(hInstance, ButtonProc, CreateSolidBrush(settings.windowColorBckgd), szRecButtClass);
 
 	// Выполнить инициализацию приложения:
 	if (!InitInstance(hInstance, nCmdShow))
@@ -66,20 +68,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		OnCreate(hWnd);
 	}
 	break;
-	case WM_CTLCOLORSTATIC:
-	{
-		HWND ee = (HWND)lParam;
-		HWND fe = GetDlgItem(hWnd, IDBgrMenu);
-		if ((HWND)lParam == GetDlgItem(hWnd, IDBgrMenu)) {
-			HDC hdcс = (HDC)wParam;
-			//SetBkMode(hdcс, TRANSPARENT);
-			SetBkColor(hdcс, RGB(0, 0, 255));
-			SetTextColor(hdcс, RGB(0, 0, 255));
-			return (int)GetStockObject(NULL_BRUSH);
-			//return (LONG)CreateSolidBrush(GetSysColor(COLOR_3DFACE));
-		}
-	}
-	break;
 	case WM_COMMAND:
 	{
 		switch HIWORD(wParam)
@@ -106,11 +94,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			case IDButtPane4:
 			{
 				SelectPane(hWnd, IDPane4);
-			}
-			break;
-			case IDPane1ButtonRec:
-			{
-				RecordWithDecode();
 			}
 			break;
 			case IDPane3ButtCopyText:
@@ -235,7 +218,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 		default:
 			DrawButton(hInst, lpDrawItem);
-		}	
+		}
 	}
 	break;
 	case WM_DESTROY:
@@ -245,4 +228,139 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 	return 0;
+}
+
+// Обработчик рисования кнопки
+LRESULT CALLBACK ButtonProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	PAINTSTRUCT ps;
+	HDC hdc;
+	RECT rc;
+	HFONT hFont{};
+	HBRUSH hBrush{};
+	HRGN hRegion{};
+
+	switch (message)
+	{
+	case WM_PAINT:
+	{
+		hdc = BeginPaint(hWnd, &ps);
+		GetClientRect(hWnd, &rc);
+
+		// Создание нового шрифта
+		hFont = CreateFont(
+			20,			// Высота шрифта
+			0,			// Ширина шрифта
+			0,			// Угол поворота шрифта
+			0,			// Угол наклона шрифта
+			FW_DEMIBOLD,	// Толщина шрифта
+			FALSE,		// Курсив
+			FALSE,		// Подчеркивание
+			FALSE,		// Зачеркивание
+			DEFAULT_CHARSET,			// Набор символов
+			OUT_DEFAULT_PRECIS,			// Точность вывода
+			CLIP_DEFAULT_PRECIS,		// Точность отсечения
+			DEFAULT_QUALITY,			// Качество шрифта
+			DEFAULT_PITCH | FF_SWISS,	// Начертание шрифта
+			L"Arial"	// Имя шрифта
+		);
+
+		// Выбор нового шрифта для контекста устройства
+		SelectObject(hdc, hFont);
+
+		// Рисуем фон кнопки
+		hBrush = CreateSolidBrush(settings.windowColorBckgdRecButton);
+		hRegion = CreateEllipticRgn(0, 0, 0, 0);
+
+		GetWindowRgn(hWnd, hRegion);
+		FillRgn(hdc, hRegion, hBrush);
+
+		// Рисуем рамку эллипса другим цветом
+		HPEN hPen = CreatePen(PS_SOLID, 2, RGB(255, 0, 0)); // Создаем красную пенсиль
+		hBrush = CreateSolidBrush(settings.windowColorBckgdRecButton2);
+
+		SelectObject(hdc, hPen); // Выбираем пенсиль для контура
+		FrameRgn(hdc, hRegion, hBrush, 5, 5); // Рисуем рамку эллипса
+
+		// Рисуем текст кнопки
+		SetBkMode(hdc, TRANSPARENT);
+		SetTextColor(hdc, RGB(255, 255, 255));
+
+		WCHAR nameButton[MAX_LOADSTRING];
+		LoadStringW(hInst, IDS_STRING115, nameButton, MAX_LOADSTRING);
+
+		DrawTextW(hdc, nameButton, -1, &rc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+
+		// Освобождаем ресурсы
+		DeleteObject(hPen);
+		EndPaint(hWnd, &ps);
+	}
+	break;
+	case WM_LBUTTONDOWN:
+	{
+		// Получаем контекст устройства кнопки
+		hdc = GetDC(hWnd);
+		GetClientRect(hWnd, &rc);
+
+		// Создание нового шрифта
+		hFont = CreateFont(
+			20,			// Высота шрифта
+			0,			// Ширина шрифта
+			0,			// Угол поворота шрифта
+			0,			// Угол наклона шрифта
+			FW_BOLD,	// Толщина шрифта
+			FALSE,		// Курсив
+			TRUE,		// Подчеркивание
+			FALSE,		// Зачеркивание
+			DEFAULT_CHARSET,			// Набор символов
+			OUT_DEFAULT_PRECIS,			// Точность вывода
+			CLIP_DEFAULT_PRECIS,		// Точность отсечения
+			DEFAULT_QUALITY,			// Качество шрифта
+			DEFAULT_PITCH | FF_SWISS,	// Начертание шрифта
+			L"Arial"	// Имя шрифта
+		);
+
+		// Выбор нового шрифта для контекста устройства
+		SelectObject(hdc, hFont);
+
+		hBrush = CreateSolidBrush(settings.windowColorBckgdRecButton2);
+		hRegion = CreateEllipticRgn(0, 0, 0, 0);
+
+		GetWindowRgn(hWnd, hRegion);
+		FillRgn(hdc, hRegion, hBrush);
+
+		// Рисуем текст кнопки
+		SetBkMode(hdc, TRANSPARENT);
+		SetTextColor(hdc, RGB(255, 255, 255));
+
+		WCHAR nameButton[MAX_LOADSTRING];
+		LoadStringW(hInst, IDS_STRING115, nameButton, MAX_LOADSTRING);
+
+		DrawText(hdc, nameButton, -1, &rc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+
+		// Освобождаем контекст устройства кнопки
+		ReleaseDC(hWnd, hdc);
+		DeleteObject(hRegion);
+		DeleteObject(hBrush);
+	}
+	break;
+	case WM_LBUTTONUP:
+	{
+		// Перерисовываем кнопку
+		InvalidateRect(hWnd, nullptr, FALSE);
+
+		RecordWithDecode();
+	}
+	break;
+	case WM_DESTROY:
+	{
+		DeleteObject(hRegion);
+		DeleteObject(hBrush);
+		DeleteObject(hFont);
+		PostQuitMessage(0);
+	}
+	break;
+	default:
+		return DefWindowProc(hWnd, message, wParam, lParam);
+	}
 }

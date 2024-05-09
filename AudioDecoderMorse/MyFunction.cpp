@@ -218,7 +218,7 @@ void InitializeUI(HWND hWnd)
 
 	// Создание кнопки прослушивания
 	CreateWindowW(
-		L"BUTTON",												// Predefined class; Unicode assumed 
+		szRecButtClass,											// Predefined class; Unicode assumed 
 		L"Прослушать",											// Button text 
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,  // Styles 
 		gui.pane1.rectPane1ButtonRec.left,						// x position 
@@ -229,6 +229,7 @@ void InitializeUI(HWND hWnd)
 		(HMENU)IDPane1ButtonRec,								// Child window
 		hInst,
 		nullptr);												// Pointer not needed
+	SetEllipticRegion(GetDlgItem(GetDlgItem(hWnd, IDPane1), IDPane1ButtonRec));
 
 	// Создание поля для вывода результата расшифровки
 	CreateWindowW(
@@ -381,10 +382,10 @@ void InitControlsRect(RECT rc)
 	// Инициализация размеров контролов для главной страницы
 	gui.pane1.rectPane1ButtonRec =
 	{
-		(gui.rectPage.right - 150) / 2,
-		(gui.rectPage.bottom - 150) / 2,
-		150,
-		150
+		(gui.rectPage.right - 180) / 2,
+		(gui.rectPage.bottom - 180) / 2,
+		180,
+		180
 	};
 	gui.pane1.rectPane1EditRes = {
 		(gui.rectPage.right - 600) / 2,
@@ -455,6 +456,23 @@ void InitControlsRect(RECT rc)
 	};
 
 	return;
+}
+
+void SetEllipticRegion(HWND hWnd)
+{
+	HRGN hRgn{};
+	RECT rc;
+
+	GetWindowRect(hWnd, &rc);
+
+	// Смещаем прямоугольник, чтобы верхний левый угол был (0, 0)
+	OffsetRect(&rc, -rc.left, -rc.top);
+
+	// Создаем регион в виде эллипса, ограниченного прямоугольником rc
+	hRgn = CreateEllipticRgnIndirect(&rc);
+
+	// Устанавливаем созданный регион для кнопки и производим немедленную перерисовку
+	SetWindowRgn(hWnd, hRgn, TRUE);
 }
 
 // =====================================

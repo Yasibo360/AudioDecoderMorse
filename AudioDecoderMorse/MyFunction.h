@@ -12,8 +12,10 @@ ATOM MyRegisterClass(HINSTANCE hInstance, WNDPROC WndProc, HBRUSH hbrBackground,
 
 BOOL InitInstance(HINSTANCE, int);
 
-// Функция обработки сообщений
-LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
+// Функции обработки сообщений
+LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+
+LRESULT CALLBACK ButtonProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 // Функции для создания GUI
 void OnCreate(HWND hWnd);
@@ -23,6 +25,8 @@ void InitializeUI(HWND hWnd);
 void InitControlsRect(RECT rc);
 
 // Функции для управления GUI
+void SetEllipticRegion(HWND hWnd);
+
 void DrawButton(HINSTANCE hInst, LPDRAWITEMSTRUCT lpInfo);
 
 void DrawStatic(HINSTANCE hInst, LPDRAWITEMSTRUCT lpInfo);
