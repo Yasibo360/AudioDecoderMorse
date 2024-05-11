@@ -8,7 +8,9 @@
 struct Settings
 {
 	LPCWSTR lpFileName = L"./Settings.ini";
+
 	RECT windowRect;
+
 	COLORREF windowColorBckgd;
 	COLORREF windowColorBckgdMenu;
 	COLORREF windowColorBckgdMenuButt;
@@ -16,6 +18,9 @@ struct Settings
 	COLORREF windowColorBckgdRecButton;
 	COLORREF windowColorBckgdRecButton2;
 	COLORREF windowColorText;
+
+	int FontSize = 12;
+	std::wstring FontName;
 
 	// Загрузка настроек из INI-файла
 	// Обновление значений полей структуры на загруженные настройки
@@ -144,6 +149,27 @@ struct Settings
 			}
 		}
 
+		GetPrivateProfileStringW(L"Font", L"FontSize", L"", buffer, 1024, lpFileName);
+		readWStringFromBuffer(buffer, value, 1024);
+
+		if (pos != std::wstring::npos)
+		{
+			std::wstring size = value.substr(0, value.length());
+			if (!size.empty()) {
+				FontSize = std::stoi(size);
+			}
+		}
+
+		GetPrivateProfileStringW(L"Font", L"FontName", L"", buffer, 1024, lpFileName);
+		readWStringFromBuffer(buffer, value, 1024);
+
+		if (pos != std::wstring::npos)
+		{
+			std::wstring nameStr = value.substr(0, value.length());
+			if (!nameStr.empty()) {
+				FontName = nameStr;
+			}
+		}
 	}
 
 	void readWStringFromBuffer(TCHAR* buffer, std::wstring& value, int bufferSize)

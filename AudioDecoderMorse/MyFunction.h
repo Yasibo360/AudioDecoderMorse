@@ -1,11 +1,11 @@
 #pragma once
 
+#include "GlobalVar.h"
+
 #include <vector>
 #include <string>
 #include <array>
 #include <locale>
-
-#include "GlobalVar.h"
 
 // Функции по созданию класса
 ATOM MyRegisterClass(HINSTANCE hInstance, WNDPROC WndProc, HBRUSH hbrBackground, LPCUWSTR szWindowClass);
@@ -41,8 +41,13 @@ void DrawPane3(HWND& hWnd, HINSTANCE& hInst, HDC& hdc);
 
 void DrawPane4(HWND& hWnd, HINSTANCE& hInst, HDC& hdc);
 
+// Фукнции для работы с файлом
+sf_count_t readAudioData(SndfileHandle file, std::vector<std::vector<float>>& samplesByChannel);
+
+sf_count_t readAudioFile(SndfileHandle file, std::vector<std::vector<float>>& samplesByChannel);
+
 // Фукнции для работы со звуком
-void RecordWithDecode();
+void RecordWithDecode(HWND hWnd);
 
 // Фукнции для работы с изображениями
 void DrawImage(HWND& hWnd, HINSTANCE& hInst, HDC& hdc, int IDB_BITMAP);

@@ -1,8 +1,8 @@
 #pragma once
 
 #define NOMINMAX
-
 #include <Windows.h>
+
 #include <thread>
 #include <SFML/Graphics.hpp>
 #include "Resource.h"

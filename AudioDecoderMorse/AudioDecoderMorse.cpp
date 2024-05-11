@@ -165,27 +165,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		// Установка цвета текста
 		SetTextColor(hdc, RGB(255, 255, 255)); // Установка цвета текста
 
-		// Создание нового шрифта
-		HFONT hFont = CreateFont(
-			16,			// Высота шрифта
-			0,			// Ширина шрифта
-			0,			// Угол поворота шрифта
-			0,			// Угол наклона шрифта
-			FW_BOLD,	// Толщина шрифта
-			FALSE,		// Курсив
-			FALSE,		// Подчеркивание
-			FALSE,		// Зачеркивание
-			DEFAULT_CHARSET,			// Набор символов
-			OUT_DEFAULT_PRECIS,			// Точность вывода
-			CLIP_DEFAULT_PRECIS,		// Точность отсечения
-			DEFAULT_QUALITY,			// Качество шрифта
-			DEFAULT_PITCH | FF_SWISS,	// Начертание шрифта
-			L"Arial"	// Имя шрифта
-		);
-
-		// Выбор нового шрифта для контекста устройства
-		SelectObject(hdc, hFont);
-
 		if (hWnd == GetParent(GetDlgItem(hWnd, IDPane1ButtonRec))) {
 			DrawPane1(hWnd, hInst, hdc);
 		}
@@ -197,10 +176,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (hWnd == GetParent(GetDlgItem(hWnd, IDPane4Picture))) {
 			DrawPane4(hWnd, hInst, hdc);
 		}
-
-		// Освобождение шрифта после использования
-		SelectObject(hdc, GetStockObject(SYSTEM_FONT));
-		DeleteObject(hFont);
 
 		EndPaint(hWnd, &ps);
 	}
@@ -350,7 +325,7 @@ LRESULT CALLBACK ButtonProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 		// Перерисовываем кнопку
 		InvalidateRect(hWnd, nullptr, FALSE);
 
-		RecordWithDecode();
+		RecordWithDecode(hWnd);
 	}
 	break;
 	case WM_DESTROY:

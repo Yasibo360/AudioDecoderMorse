@@ -1,15 +1,9 @@
 #include "MorseСode.h"
 #include "MyFunction.h"
 
-#include <fstream>
-#include <iostream>
-#include <codecvt>
-#include <cwctype>
-
-
-MorseСode::MorseСode() : dot(L"."), dash(L"-"), sepSymb(L" "), sepWord(L"   "),
-dotDuration(100), dashDuration(3 * dotDuration), pauseDuration(dotDuration),
-wordPauseDuration(7 * dotDuration)
+MorseСode::MorseСode() : _dot(L"."), _dash(L"-"), _sepSymb(L" "), _sepWord(L"   "),
+_dotDuration(100), _dashDuration(3 * _dotDuration), _pauseDuration(_dotDuration),
+_wordPauseDuration(7 * _dotDuration)
 {
 	// Загрузка стандартных словарей
 	loadDictionaryFromFile("./Dictionaries/Dictionary Numeric.txt");
@@ -18,13 +12,13 @@ wordPauseDuration(7 * dotDuration)
 	loadDictionaryFromFile("./Dictionaries/Dictionary Ru.txt");
 
 	// Если словарей не найдено, программа не сможет работать
-	if (dictionaries.empty())
+	if (_dictionaries.empty())
 	{
 		return;
 	}
 	else {
 		// Устанавливаем текущий словарь - Кириллица
-		setCurrentDictionary(dictionaries.begin()->first);
+		setCurrentDictionary(_dictionaries.begin()->first);
 	}
 	return;
 };
@@ -33,16 +27,16 @@ MorseСode::~MorseСode() {};
 
 void MorseСode::setCurrentDictionary(const std::wstring& dictionatyName)
 {
-	currentDictionary = dictionatyName;
+	_currentDictionary = dictionatyName;
 	return;
 };
 
 void MorseСode::setDurations(int dot, int dash, int letterPause, int wordPause)
 {
-	dotDuration = dot;
-	dashDuration = dash;
-	pauseDuration = letterPause;
-	wordPauseDuration = wordPause;
+	_dotDuration = dot;
+	_dashDuration = dash;
+	_pauseDuration = letterPause;
+	_wordPauseDuration = wordPause;
 };
 
 void MorseСode::loadDictionaryFromFile(const std::string& filename)
@@ -60,7 +54,7 @@ void MorseСode::loadDictionaryFromFile(const std::string& filename)
 
 	// Чтение названия алфавита
 	if (std::getline(file, alphabetName)) {
-		dictionaries[alphabetName]; // Используем первую строку в качестве ключа для внешней карты
+		_dictionaries[alphabetName]; // Используем первую строку в качестве ключа для внешней карты
 
 	}
 	else {
@@ -83,14 +77,14 @@ void MorseСode::loadDictionaryFromFile(const std::string& filename)
 		std::wstring code = line.substr(2, pos - 2); // Извлекаем код Морзе до первого пробела или конца строки
 
 		// Добавление пары символ-код Морзе в соответствующую внутреннюю карту
-		dictionaries[alphabetName][character] = code;
+		_dictionaries[alphabetName][character] = code;
 	}
 	file.close();
 
 	return;
 }
 
-std::wstring MorseСode::CharToMorse(std::wstring str)
+std::wstring MorseСode::charToMorse(std::wstring str)
 {
 	std::wstring morseCode{};
 
@@ -98,10 +92,10 @@ std::wstring MorseСode::CharToMorse(std::wstring str)
 	for (size_t i = 0; i < str.length(); i++)
 	{
 		str[i] = std::towupper(str[i]);
-		for (const auto& dictionary : dictionaries) {
+		for (const auto& dictionary : _dictionaries) {
 			if (dictionary.second.find(str[i]) != dictionary.second.end())
 			{
-				morseCode += dictionary.second.find(str[i])->second + MorseСode::sepSymb;
+				morseCode += dictionary.second.find(str[i])->second + _sepSymb;
 				break;
 			}
 
@@ -112,7 +106,7 @@ std::wstring MorseСode::CharToMorse(std::wstring str)
 			}*/
 			if (str[i] == wchar_t(" "[0]))
 			{
-				morseCode += MorseСode::sepWord;
+				morseCode += _sepWord;
 				break;
 			}
 		}
@@ -122,51 +116,201 @@ std::wstring MorseСode::CharToMorse(std::wstring str)
 	return morseCode;
 };
 
-std::wstring MorseСode::MorseToChar(std::wstring str)
+std::wstring MorseСode::morseToChar(std::wstring str, const std::map<wchar_t, std::wstring>& dictionary)
 {
-	std::wstring userStr;
-	std::vector<std::wstring> words = Split(str, sepWord);
-	std::vector<std::wstring> symbols;
-	bool flag = false;
+    std::wstring userStr;
+    std::vector<std::wstring> words = Split(str, _sepWord);
+    std::vector<std::wstring> symbols;
+    bool flag = false;
 
-	for (std::wstring word : words)
-	{
-		symbols = Split(word, sepSymb);
+    for (std::wstring word : words)
+    {
+        symbols = Split(word, _sepSymb);
 
-		for (std::wstring symbol : symbols)
-		{
-			for (std::map<wchar_t, std::wstring>::const_iterator it = dictionaries.find(currentDictionary)->second.begin();
-				it != dictionaries.find(currentDictionary)->second.end(); ++it)
-			{
-				if (it->second == symbol)
-				{
-					userStr += it->first;
-					flag = true;
-					break;
+        for (std::wstring symbol : symbols)
+        {
+            const std::map<wchar_t, std::wstring>& currentDictionary = dictionary.empty() ? getAllDictionariesCombined() : dictionary;
+
+            for (const auto& it : currentDictionary)
+            {
+                if (it.second == symbol)
+                {
+                    userStr += it.first;
+                    flag = true;
+                    break;
+                }
+            }
+
+            // Обработка неопознанных символов по текущему словарю
+            if (flag == false) userStr += L"#";
+        }
+        userStr += _sepWord;
+    }
+    return userStr;
+}
+
+std::map<wchar_t, std::wstring> MorseСode::getAllDictionariesCombined()
+{
+    std::map<wchar_t, std::wstring> combinedDictionary;
+    for (const auto& dict : _dictionaries)
+    {
+        for (const auto& entry : dict.second)
+        {
+            combinedDictionary[entry.first] = entry.second;
+        }
+    }
+    return combinedDictionary;
+}
+
+std::wstring MorseСode::peakDurationsToMorse(const std::vector<std::pair<char, float>>& peakDurations, float precision)
+{
+	std::wstring morseCode;
+
+	float minNumber = std::numeric_limits<float>::infinity();
+	float maxPause = -std::numeric_limits<float>::infinity();
+
+	// Поиск минимального значения символов и максимальной паузы
+	for (const auto& duration : peakDurations) {
+		if (duration.first == 's') {
+			minNumber = std::min(minNumber, duration.second);
+		}
+		if (duration.first == 'p') {
+			maxPause = std::max(maxPause, duration.second);
+		}
+	}
+
+	for (const auto& duration : peakDurations) {
+		if (duration.first == 's') {
+			if (std::abs(duration.second - minNumber) <= std::pow(10, precision)) {
+				morseCode += L".";
+			}
+			else if (std::abs(duration.second - minNumber * 3) <= std::pow(10, precision)) {
+				morseCode += L"-";
+			}
+		}
+		else if (duration.first == 'p') {
+			if (std::abs(duration.second - maxPause) <= std::pow(10, precision + 1)) {
+				morseCode += L" ";
+			}
+		}
+	}
+
+	return morseCode;
+}
+
+std::wstring MorseСode::audioFileToMorse(std::string filename)
+{
+	// Открытие файла для чтения
+	SndfileHandle file(filename);
+
+	// Вектор векторов для чтения по каналам
+	std::vector<std::vector<float>> samplesByChannels;
+
+	float frames;
+	frames = readAudioData(filename, samplesByChannels);
+
+	// Вычисляем пороговое значение
+	float max_sample = *std::max_element(samplesByChannels[0].begin(), samplesByChannels[0].end());
+	_threshold = max_sample * 0.5;
+
+	// Вычисляем время для каждого отсчета
+	float samplerate = file.samplerate();
+	std::vector<float> time(frames);
+
+	for (int i = 0; i < frames; i++) {
+		time[i] = i / samplerate;
+	}
+
+	// Вычисляем период сигнала
+	float period = 1.0 / samplerate;
+
+	std::vector<std::pair<float, float>> widePeaks;
+	widePeaks = findWidePeaks(samplesByChannels[0], time, period);
+
+	std::vector<std::pair<char, float>> peakDurations;
+	peakDurations = findPeakDurations(widePeaks, 2);
+
+	std::wstring result = peakDurationsToMorse(peakDurations);
+
+	return result;
+}
+
+std::vector<std::pair<float, float>> MorseСode::findWidePeaks(std::vector<float>& samples, std::vector<float>& time, float period)
+{
+	// Получаем начальное и конечное время
+	float timeStart = time.front();
+	float timeEnd = time.back();
+
+	// Ищем индексы пиков, которые выше порога
+	std::vector<int> peaks;
+	for (int i = 1; i < samples.size() - 1; ++i) {
+		if (samples[i] > _threshold) {
+			if (samples[i] > samples[i - 1] && samples[i] > samples[i + 1]) {
+				peaks.push_back(i);
+			}
+		}
+	}
+
+	// Находим индексы начала и конца широких пиков
+	std::vector<std::pair<float, float>> peak_ranges;
+	std::vector<std::pair<float, float>> wide_peak_ranges;
+
+	for (int i = 0; i < peaks.size() - 1; ++i) {
+		if (time[peaks[i]] >= timeStart && time[peaks[i]] <= timeEnd) {
+			if (time[peaks[i + 1]] - time[peaks[i]] <= 200 * period) {
+				if (peak_ranges.empty()) {
+					peak_ranges.emplace_back(time[peaks[i]], time[peaks[i + 1]]);
+				}
+				else {
+					peak_ranges.back().second = time[peaks[i + 1]];
 				}
 			}
-			// Обработка неопознанных символов по текущему словарю
-			if (flag == false) userStr += L"#";
+			else {
+				if (!peak_ranges.empty()) {
+					wide_peak_ranges.push_back(peak_ranges.back());
+					peak_ranges.clear();
+				}
+			}
 		}
-		userStr += sepWord;
 	}
-	return userStr;
+
+	// Добавляем последний интервал в wide_peak_ranges
+	if (!peak_ranges.empty()) {
+		wide_peak_ranges.push_back(peak_ranges.back());
+	}
+
+	return wide_peak_ranges;
+}
+
+std::vector<std::pair<char, float>> MorseСode::findPeakDurations(std::vector<std::pair<float, float>>& widePeaks, float precision)
+{
+	std::vector<std::pair<char, float>> peak_durations;
+	for (size_t i = 0; i < widePeaks.size(); ++i) {
+		float duration = std::round((widePeaks[i].second - widePeaks[i].first) * std::pow(10, precision)) / std::pow(10, precision);
+		peak_durations.push_back(std::make_pair('s', duration));
+
+		if (i < widePeaks.size() - 1) {
+			float pause = std::round((widePeaks[i + 1].first - widePeaks[i].second) * std::pow(10, precision)) / std::pow(10, precision);
+			peak_durations.push_back(std::make_pair('p', pause));
+		}
+	}
+
+	return peak_durations;
+}
+
+float MorseСode::getThreshold()
+{
+	return _threshold;
 };
 
-std::wstring MorseСode::SoundToMorse()
+void MorseСode::playMorseCode(std::wstring& morseCode)
 {
-
-	return L"";
-};
-
-void MorseСode::PlayMorseCode(std::wstring& morseCode)
-{
-	std::vector<std::wstring> words = Split(morseCode, MorseСode::sepWord);
+	std::vector<std::wstring> words = Split(morseCode, _sepWord);
 	std::vector<std::wstring> symbols;
 
 	for (std::wstring word : words)
 	{
-		symbols = Split(word, MorseСode::sepSymb);
+		symbols = Split(word, _sepSymb);
 
 		for (std::wstring symbol : symbols)
 		{
@@ -175,19 +319,19 @@ void MorseСode::PlayMorseCode(std::wstring& morseCode)
 				switch (symbol[i])
 				{
 				case '.':
-					Beep(900, MorseСode::dotDuration);
+					Beep(900, _dotDuration);
 					break;
 				case '-':
-					Beep(900, MorseСode::dashDuration);
+					Beep(900, _dashDuration);
 					break;
 				default:
 					break;
 				}
-				Sleep(MorseСode::dotDuration);
+				Sleep(_dotDuration);
 			}
-			Sleep(MorseСode::dashDuration);
+			Sleep(_dashDuration);
 		}
-		Sleep(MorseСode::wordPauseDuration);
+		Sleep(_wordPauseDuration);
 	}
 	return;
 };

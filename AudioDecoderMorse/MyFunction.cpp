@@ -69,6 +69,32 @@ void OnCreate(HWND hWnd)
 	// Создание GUI приложения
 	InitializeUI(hWnd);
 
+	HDC hdc = GetDC(hWnd);
+
+	// Создание нового шрифта
+	HFONT hFont = CreateFontW(
+		16,			// Высота шрифта
+		0,			// Ширина шрифта
+		0,			// Угол поворота шрифта
+		0,			// Угол наклона шрифта
+		FW_BOLD,	// Толщина шрифта
+		FALSE,		// Курсив
+		FALSE,		// Подчеркивание
+		FALSE,		// Зачеркивание
+		DEFAULT_CHARSET,			// Набор символов
+		OUT_DEFAULT_PRECIS,			// Точность вывода
+		CLIP_DEFAULT_PRECIS,		// Точность отсечения
+		DEFAULT_QUALITY,			// Качество шрифта
+		DEFAULT_PITCH | FF_SWISS,	// Начертание шрифта
+		settings.FontName.c_str()	// Имя шрифта
+	);
+
+	// Выбор нового шрифта для контекста устройства
+	SelectObject(hdc, hFont);
+
+	DeleteObject(hFont);
+	ReleaseDC(hWnd, hdc);
+
 	// Установка локали (для отладки)
 	std::setlocale(LC_ALL, "");
 }
@@ -680,16 +706,92 @@ void DrawPane4(HWND& hWnd, HINSTANCE& hInst, HDC& hdc)
 	DeleteObject(hFont);
 }
 
-void RecordWithDecode()
+sf_count_t readAudioData(SndfileHandle file, std::vector<std::vector<float>>& samplesByChannel)
+{
+	// Проверка, удалось ли открыть файл для чтения
+	if (!file) {
+		std::cerr << "Не удалось открыть файл для чтения" << std::endl;
+		throw "Не удалось открыть файл для чтения";
+	}
+
+	// Получаем параметры аудиофайла
+	int frames = file.frames();
+	int channels = file.channels();
+	int samplerate = file.samplerate();
+
+	// Чтение данных из файла
+	std::vector<float> audioData(frames * channels);
+	sf_count_t framesRead = file.read(audioData.data(), audioData.size());
+
+	// Проверка, удалось ли прочитать данные из файла
+	if (framesRead != audioData.size()) {
+		std::cerr << "Не удалось прочитать данные из файла" << std::endl;
+		throw "Не удалось прочитать данные из файла";
+	}
+
+	// Вектор векторов для чтения по каналам
+	samplesByChannel.resize(channels);
+
+	for (int i = 0; i < frames; ++i) {
+		for (int j = 0; j < channels; ++j) {
+			samplesByChannel[j].push_back(audioData[i * channels + j]);
+		}
+	}
+
+	return framesRead;
+}
+
+void RecordWithDecode(HWND hWnd)
 {
 	if (!recorder.IsRecording()) {
 		recorder.StartRecording();
 	}
 	else {
 		recorder.StopRecording();
-		// Добавить расшифровку аудиосообщения из записанного файла
+		morse.audioFileToMorse("recorded.wav");
 
-	}
+		std::wstring morseCode;
+		std::wstring morseChar;
+		morseCode = morse.audioFileToMorse("recorded.wav");
+		morseChar = morse.morseToChar(morseCode);
+
+		WCHAR buffer[MAX_EDITSTRING];
+		if (morseChar.length() != 0)
+		{
+			for (size_t i = 0; i < morseChar.length(); i++)
+			{
+				buffer[i] = morseChar[i];
+				buffer[i + 1] = '\0';
+			}
+			SetWindowTextW(GetDlgItem(hWndPane1, IDPane1EditRes), buffer);
+		}
+		else
+		{
+			SetWindowTextW(GetDlgItem(hWnd, IDPane1EditRes), 0);
+		}
+	}	
+
+	//morse.audioFileToMorse("recorded.wav");
+
+	//std::wstring morseCode;
+	//std::wstring morseChar;
+	//morseCode = morse.audioFileToMorse("recorded.wav");
+	//morseChar = morse.morseToChar(morseCode);
+
+	//WCHAR buffer[MAX_EDITSTRING];
+	//if (morseChar.length() != 0)
+	//{
+	//	for (size_t i = 0; i < morseChar.length(); i++)
+	//	{
+	//		buffer[i] = morseChar[i];
+	//		buffer[i + 1] = '\0';
+	//	}
+	//	SetWindowTextW(GetDlgItem(hWndPane1, IDPane1EditRes), buffer);
+	//}
+	//else
+	//{
+	//	SetWindowTextW(GetDlgItem(hWnd, IDPane1EditRes), 0);
+	//}
 }
 
 void DrawImage(HWND& hWnd, HINSTANCE& hInst, HDC& hdc, int IDB_BITMAP)
@@ -725,19 +827,18 @@ void DrawImage(HWND& hWnd, HINSTANCE& hInst, HDC& hdc, int IDB_BITMAP)
 
 void PlayCodeMorse(HWND& hWnd)
 {
-    WCHAR buffer[MAX_EDITSTRING];
-    std::wstring morseCode;
+	WCHAR buffer[MAX_EDITSTRING];
+	std::wstring morseCode;
 
-    GetWindowTextW(GetDlgItem(hWnd, IDPane3EditCode), buffer, MAX_LOADSTRING);
-    for (size_t i = 0; (i < sizeof(buffer) / 2 - 1) && (buffer[i] != 0); i++)
-    {
-        morseCode += buffer[i];
-    }
+	GetWindowTextW(GetDlgItem(hWnd, IDPane3EditCode), buffer, MAX_LOADSTRING);
+	for (size_t i = 0; (i < sizeof(buffer) / 2 - 1) && (buffer[i] != 0); i++)
+	{
+		morseCode += buffer[i];
+	}
 
 	if (!morseCode.empty()) {
 		std::thread thread([morseCode = std::move(morseCode)]() mutable {
-			MorseСode morse;
-			morse.PlayMorseCode(morseCode);
+			morse.playMorseCode(morseCode);
 			});
 		thread.detach();
 	}
@@ -754,7 +855,7 @@ void ChangeEditText(HWND& hWnd)
 	{
 		morseChar += buffer[i];
 	}
-	morseCode = morse.CharToMorse(morseChar);
+	morseCode = morse.charToMorse(morseChar);
 	if (morseCode.length() != 0)
 	{
 		for (size_t i = 0; i < morseCode.length() - 1; i++)

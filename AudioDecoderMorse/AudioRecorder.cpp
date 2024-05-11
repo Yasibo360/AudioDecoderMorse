@@ -225,6 +225,7 @@ DWORD WINAPI AudioRecorder::recordingThreadProc(LPVOID lpParam) {
 				recorder->_waveFormatX.nChannels,
 				recorder->_waveFormatX.nSamplesPerSec
 			);
+			// Почему-то устройство заполняет данными только 1/2 буфера
 			file.write(audioData.data(), audioData.size() / 2);
 		}				
 		ReleaseMutex(recorder->_audioQueueMutex);
