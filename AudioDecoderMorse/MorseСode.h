@@ -30,19 +30,20 @@ private:
 
 public:
 	Morse—ode();
-	~Morse—ode();	
 
-	void setCurrentDictionary(const std::wstring& dictionatyName);
+	~Morse—ode();	
 
 	void setDurations(int dot, int dash, int wordPause, int letterPause);
 
-	void loadDictionaryFromFile(const std::string& filename);
+	bool loadDictionaryFromFile(const std::string& filename);
 
 	std::wstring charToMorse(std::wstring str);
 
-	std::wstring morseToChar(std::wstring str, const std::map<wchar_t, std::wstring>& dictionary = {});
+	std::wstring morseToChar(std::wstring str);
 
 	std::map<wchar_t, std::wstring> getAllDictionariesCombined();
+
+	std::vector<std::wstring> getAllDictionariesName();
 
 	std::wstring peakDurationsToMorse(const std::vector<std::pair<char, float>>& peakDurations, float precision = -2);
 

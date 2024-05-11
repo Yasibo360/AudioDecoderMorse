@@ -111,6 +111,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				CopyIntoBuffer(hWnd, IDPane3EditCode);
 			}
 			break;
+			case IDPane3ButtAddDict:
+			{
+				addDictionary(hWnd, IDPane3ListDict);
+			}
+			break;
 			default:
 				return DefWindowProc(hWnd, message, wParam, lParam);
 			}
@@ -136,6 +141,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				}
 			}
 			break;
+			default:
+				return DefWindowProc(hWnd, message, wParam, lParam);
+			}
+		}
+		case LBN_SELCHANGE:
+		{
+			switch LOWORD(wParam)
+			{
+			case IDPane3ListDict:
+			{
+				int selectedIndex = SendMessageW(GetDlgItem(hWnd, IDPane3ListDict), LB_GETCURSEL, 0, 0);
+				if (selectedIndex != LB_ERR)
+				{
+					// Получить выбранный элемент
+					wchar_t selectedItem[MAX_LOADSTRING];
+					SendMessageW(GetDlgItem(hWnd, IDPane3ListDict), LB_GETTEXT, selectedIndex, (LPARAM)selectedItem);
+
+					std::wstring selectedItemStr(selectedItem);
+
+					// Обработать выбранный элемент
+					
+				}
+			}
 			default:
 				return DefWindowProc(hWnd, message, wParam, lParam);
 			}
@@ -325,7 +353,7 @@ LRESULT CALLBACK ButtonProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 		// Перерисовываем кнопку
 		InvalidateRect(hWnd, nullptr, FALSE);
 
-		RecordWithDecode(hWnd);
+		RecordWithDecode(hWnd, IDPane1EditRes);
 	}
 	break;
 	case WM_DESTROY:

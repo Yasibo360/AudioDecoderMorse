@@ -46,8 +46,12 @@ sf_count_t readAudioData(SndfileHandle file, std::vector<std::vector<float>>& sa
 
 sf_count_t readAudioFile(SndfileHandle file, std::vector<std::vector<float>>& samplesByChannel);
 
+void addDictionary(const HWND hWnd, const int IDControl);
+
+std::string openFileDialog();
+
 // Фукнции для работы со звуком
-void RecordWithDecode(HWND hWnd);
+void RecordWithDecode(const HWND hWnd, const int IDControl);
 
 // Фукнции для работы с изображениями
 void DrawImage(HWND& hWnd, HINSTANCE& hInst, HDC& hdc, int IDB_BITMAP);

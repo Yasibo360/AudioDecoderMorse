@@ -346,7 +346,7 @@ void InitializeUI(HWND hWnd)
 	CreateWindow(
 		L"LISTBOX",
 		L"Выпадающий список",
-		WS_CHILD | WS_VISIBLE | LBS_STANDARD | LBS_WANTKEYBOARDINPUT,
+		WS_CHILD | WS_VISIBLE | LBS_STANDARD | LBS_NOSEL,
 		gui.pane3.rectPane3ListDict.left,
 		gui.pane3.rectPane3ListDict.top,
 		gui.pane3.rectPane3ListDict.right,
@@ -357,9 +357,11 @@ void InitializeUI(HWND hWnd)
 		nullptr);
 
 	// Добавление элементов в выпадающий список
-	SendMessageW(GetDlgItem(GetDlgItem(hWnd, IDPane3), IDPane3ListDict), LB_ADDSTRING, 0, (LPARAM)L"Dictionary En");
-	SendMessageW(GetDlgItem(GetDlgItem(hWnd, IDPane3), IDPane3ListDict), LB_ADDSTRING, 0, (LPARAM)L"Dictionary Ru");
-	SendMessageW(GetDlgItem(GetDlgItem(hWnd, IDPane3), IDPane3ListDict), LB_SELECTSTRING, (WPARAM)0, (LPARAM)L"Dictionary En");
+	std::vector<std::wstring> dictName = morse.getAllDictionariesName();
+	for (const auto& name : dictName)
+	{
+		SendMessageW(GetDlgItem(GetDlgItem(hWnd, IDPane3), IDPane3ListDict), LB_ADDSTRING, 0, (LPARAM)name.c_str());
+	}
 
 	CreateWindow(
 		L"BUTTON",
@@ -741,7 +743,55 @@ sf_count_t readAudioData(SndfileHandle file, std::vector<std::vector<float>>& sa
 	return framesRead;
 }
 
-void RecordWithDecode(HWND hWnd)
+sf_count_t readAudioFile(SndfileHandle file, std::vector<std::vector<float>>& samplesByChannel)
+{
+
+	return sf_count_t();
+}
+
+void addDictionary(const HWND hWnd, const int IDControl)
+{
+	std::string fileName = openFileDialog();
+	if (morse.loadDictionaryFromFile(fileName)) {
+		// Очищаем лист словарей
+		SendMessageW(GetDlgItem(hWnd, IDPane3ListDict), LB_RESETCONTENT, 0, 0);
+
+		// Заполняем лист словарей
+		std::vector<std::wstring> dictName = morse.getAllDictionariesName();
+		for (const auto& name : dictName)
+		{
+			SendMessageW(GetDlgItem(hWnd, IDPane3ListDict), LB_ADDSTRING, 0, (LPARAM)name.c_str());
+		}
+	}
+}
+
+std::string openFileDialog()
+{
+	OPENFILENAMEW ofn;
+	ZeroMemory(&ofn, sizeof(OPENFILENAMEW));
+
+	wchar_t fileName[MAX_PATH + 1];
+	ZeroMemory(fileName, sizeof(fileName));
+
+	ofn.lStructSize = sizeof(OPENFILENAMEW);
+	ofn.hwndOwner = NULL; // Указывается только в случае использования внутри окна
+	ofn.lpstrFilter = L"All Files\0*.*\0Wave Files\0*.wav\0";
+	ofn.lpstrFile = fileName;
+	ofn.nMaxFile = MAX_PATH;
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_EXPLORER;
+
+	std::wstring filePath;
+	if (GetOpenFileNameW(&ofn) == TRUE)
+	{
+		filePath = ofn.lpstrFile;
+	}
+
+	std::string filePathStr(filePath.begin(), filePath.end());
+
+	return filePathStr;
+}
+
+void RecordWithDecode(const HWND hWnd, const int IDControl)
 {
 	if (!recorder.IsRecording()) {
 		recorder.StartRecording();
@@ -763,11 +813,11 @@ void RecordWithDecode(HWND hWnd)
 				buffer[i] = morseChar[i];
 				buffer[i + 1] = '\0';
 			}
-			SetWindowTextW(GetDlgItem(hWndPane1, IDPane1EditRes), buffer);
+			SetWindowTextW(GetDlgItem(hWndPane1, IDControl), buffer);
 		}
 		else
 		{
-			SetWindowTextW(GetDlgItem(hWnd, IDPane1EditRes), 0);
+			SetWindowTextW(GetDlgItem(hWnd, IDControl), 0);
 		}
 	}	
 

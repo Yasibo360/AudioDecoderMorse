@@ -14,22 +14,12 @@ _wordPauseDuration(7 * _dotDuration)
 	// Если словарей не найдено, программа не сможет работать
 	if (_dictionaries.empty())
 	{
-		return;
-	}
-	else {
-		// Устанавливаем текущий словарь - Кириллица
-		setCurrentDictionary(_dictionaries.begin()->first);
+		throw "Error: dictionaries not loaded";
 	}
 	return;
 };
 
 MorseСode::~MorseСode() {};
-
-void MorseСode::setCurrentDictionary(const std::wstring& dictionatyName)
-{
-	_currentDictionary = dictionatyName;
-	return;
-};
 
 void MorseСode::setDurations(int dot, int dash, int letterPause, int wordPause)
 {
@@ -39,14 +29,14 @@ void MorseСode::setDurations(int dot, int dash, int letterPause, int wordPause)
 	_wordPauseDuration = wordPause;
 };
 
-void MorseСode::loadDictionaryFromFile(const std::string& filename)
+bool MorseСode::loadDictionaryFromFile(const std::string& filename)
 {
 	std::wifstream file(filename); // Открытие файла для чтения
 	file.imbue(std::locale(std::locale(), new std::codecvt_utf8<wchar_t>)); // Установка локали для корректной обработки wchar_t
 
 	if (!file.is_open()) {
 		std::cerr << "Не удалось открыть файл " << filename << std::endl;
-		return;
+		return false;
 	}
 
 	std::wstring line;
@@ -59,18 +49,18 @@ void MorseСode::loadDictionaryFromFile(const std::string& filename)
 	}
 	else {
 		std::wcerr << L"Файл пуст." << std::endl;
-		return;
+		return false;
 	}
 
 	// Чтение алфавита
 	while (std::getline(file, line)) {
-		if (line.empty()) return; // Если пустая строка = алфавит закончен
+		if (line.empty()) return false; // Если пустая строка = алфавит закончен
 
 		// Находим позицию первого пробела или конца строки
 		size_t pos = line.find(L' ');
 		if (pos == std::wstring::npos) {
 			pos = line.size(); // Если пробел не найден, используем длину строки
-			return;
+			return false;
 		}
 
 		wchar_t character = line[0]; // Первый символ - это символ Морзе
@@ -81,7 +71,7 @@ void MorseСode::loadDictionaryFromFile(const std::string& filename)
 	}
 	file.close();
 
-	return;
+	return true;
 }
 
 std::wstring MorseСode::charToMorse(std::wstring str)
@@ -116,7 +106,7 @@ std::wstring MorseСode::charToMorse(std::wstring str)
 	return morseCode;
 };
 
-std::wstring MorseСode::morseToChar(std::wstring str, const std::map<wchar_t, std::wstring>& dictionary)
+std::wstring MorseСode::morseToChar(std::wstring str)
 {
     std::wstring userStr;
     std::vector<std::wstring> words = Split(str, _sepWord);
@@ -129,20 +119,26 @@ std::wstring MorseСode::morseToChar(std::wstring str, const std::map<wchar_t, st
 
         for (std::wstring symbol : symbols)
         {
-            const std::map<wchar_t, std::wstring>& currentDictionary = dictionary.empty() ? getAllDictionariesCombined() : dictionary;
-
-            for (const auto& it : currentDictionary)
+            for (const auto& dictEntry : _dictionaries)
             {
-                if (it.second == symbol)
-                {
-                    userStr += it.first;
-                    flag = true;
-                    break;
-                }
+                const std::map<wchar_t, std::wstring>& currentDictionary = dictEntry.second;
+
+				for (const auto& it : currentDictionary)
+				{
+					if (it.second == symbol)
+					{
+						userStr += it.first;
+						flag = true;
+						break;
+					}
+				}
             }
 
             // Обработка неопознанных символов по текущему словарю
-            if (flag == false) userStr += L"#";
+            if (!flag)
+            {
+                userStr += L"#";
+            }
         }
         userStr += _sepWord;
     }
@@ -160,6 +156,18 @@ std::map<wchar_t, std::wstring> MorseСode::getAllDictionariesCombined()
         }
     }
     return combinedDictionary;
+}
+
+std::vector<std::wstring> MorseСode::getAllDictionariesName()
+{
+	std::vector<std::wstring> dictionariesName;
+
+	for (const auto& dict : _dictionaries)
+	{
+		dictionariesName.push_back(dict.first);
+	}
+
+	return dictionariesName;
 }
 
 std::wstring MorseСode::peakDurationsToMorse(const std::vector<std::pair<char, float>>& peakDurations, float precision)
