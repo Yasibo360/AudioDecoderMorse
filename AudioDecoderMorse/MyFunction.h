@@ -41,6 +41,8 @@ void DrawPane3(HWND& hWnd, HINSTANCE& hInst, HDC& hdc);
 
 void DrawPane4(HWND& hWnd, HINSTANCE& hInst, HDC& hdc);
 
+void createPopupMenuPlot(HWND hWnd, POINT pt);
+
 // Фукнции для работы с файлом
 sf_count_t readAudioData(SndfileHandle file, std::vector<std::vector<float>>& samplesByChannel);
 

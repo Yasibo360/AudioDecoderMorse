@@ -2,6 +2,7 @@
 
 #define NOMINMAX
 #include <Windows.h>
+#include <windowsx.h>
 
 #include <thread>
 #include <SFML/Graphics.hpp>

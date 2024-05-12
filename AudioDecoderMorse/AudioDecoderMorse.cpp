@@ -70,6 +70,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	break;
 	case WM_COMMAND:
 	{
+		int wmId = LOWORD(wParam);
+
 		switch HIWORD(wParam)
 		{
 		case BN_CLICKED:
@@ -145,29 +147,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				return DefWindowProc(hWnd, message, wParam, lParam);
 			}
 		}
-		case LBN_SELCHANGE:
-		{
-			switch LOWORD(wParam)
-			{
-			case IDPane3ListDict:
-			{
-				int selectedIndex = SendMessageW(GetDlgItem(hWnd, IDPane3ListDict), LB_GETCURSEL, 0, 0);
-				if (selectedIndex != LB_ERR)
-				{
-					// Получить выбранный элемент
-					wchar_t selectedItem[MAX_LOADSTRING];
-					SendMessageW(GetDlgItem(hWnd, IDPane3ListDict), LB_GETTEXT, selectedIndex, (LPARAM)selectedItem);
-
-					std::wstring selectedItemStr(selectedItem);
-
-					// Обработать выбранный элемент
-					
-				}
-			}
-			default:
-				return DefWindowProc(hWnd, message, wParam, lParam);
-			}
-		}
+		break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
@@ -197,6 +177,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DrawPane1(hWnd, hInst, hdc);
 		}
 
+		if (hWnd == GetParent(GetDlgItem(hWnd, IDPane2Plot))) {
+			DrawPane2(hWnd, hInst, hdc);
+		}
+
 		if (hWnd == GetParent(GetDlgItem(hWnd, IDPane3EditText))) {
 			DrawPane3(hWnd, hInst, hdc);
 		}
@@ -206,6 +190,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 
 		EndPaint(hWnd, &ps);
+	}
+	break;
+	case WM_CONTEXTMENU:
+	{
+		if (GetDlgItem(hWnd, IDPane2Plot) != NULL) {
+			// Отображение контекстного меню в указанной позиции
+			POINT pt;
+			POINT ptPlot;
+			pt.x = GET_X_LPARAM(lParam);
+			pt.y = GET_Y_LPARAM(lParam);
+
+			ptPlot = pt;
+
+			// Преобразование координат экрана в координаты клиентской области
+			ScreenToClient(GetDlgItem(hWnd, IDPane2Plot), &ptPlot);
+
+			RECT rectPlot = gui.pane2.rectPane2Plot;
+			rectPlot.left = 0;
+			rectPlot.top = 0;
+
+			// Проверка, находится ли щелчок внутри области графика
+			if (PtInRect(&rectPlot, ptPlot)) {
+				// Отображение контекстного меню в указанной позиции
+				createPopupMenuPlot(hWnd, pt);
+			}
+		}
 	}
 	break;
 	case WM_DRAWITEM:
@@ -221,6 +231,50 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 		default:
 			DrawButton(hInst, lpDrawItem);
+		}
+	}
+	break;
+	case WM_MENUSELECT:
+	{
+		switch LOWORD(wParam)
+		{
+		case IDMenuItem1:
+		{
+			
+		}
+		break;
+		case IDMenuItem2:
+		{
+			
+		}
+		break;
+		case IDMenuItem3:
+		{
+			
+		}
+		break;
+		case IDMenuItem4:
+		{
+			
+		}
+		break;
+		case IDMenuItem5:
+		{
+			
+		}
+		break;
+		case IDMenuItem6:
+		{
+			
+		}
+		break;
+		case IDMenuItem7:
+		{
+			
+		}
+		break;
+		default:
+			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
 	}
 	break;

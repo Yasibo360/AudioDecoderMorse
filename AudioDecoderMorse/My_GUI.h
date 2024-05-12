@@ -28,6 +28,12 @@ struct Pane2
 {
 	const int ID = IDPane2;
 
+	RECT rectPane2Plot;
+	RECT rectPane2ButtPlay;
+	RECT rectPane2ButtStop;
+	RECT rectPane2ButtReset;
+	RECT rectPane2EditCode;
+	RECT rectPane2EditText;
 };
 
 // Размеры контролов для страницы переводчика

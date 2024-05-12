@@ -40,8 +40,19 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	hInst = hInstance; // Сохранить маркер экземпляра в глобальной переменной
 
-	HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW & ~WS_THICKFRAME & ~WS_MAXIMIZEBOX,
-		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+	HWND hWnd = CreateWindowW(
+		szWindowClass,
+		szTitle,
+		WS_OVERLAPPEDWINDOW & ~WS_THICKFRAME & ~WS_MAXIMIZEBOX,
+		CW_USEDEFAULT,
+		0,
+		CW_USEDEFAULT,
+		0,
+		nullptr,
+		nullptr,
+		hInstance,
+		nullptr
+	);
 
 	if (!hWnd)
 	{
@@ -272,8 +283,85 @@ void InitializeUI(HWND hWnd)
 		nullptr);
 
 	// Создание контролов для 2-ой панели
+	CreateWindow(
+		L"STATIC",
+		L"",
+		WS_VISIBLE | WS_CHILD,
+		gui.pane2.rectPane2Plot.left,
+		gui.pane2.rectPane2Plot.top,
+		gui.pane2.rectPane2Plot.right,
+		gui.pane2.rectPane2Plot.bottom,
+		GetDlgItem(hWnd, IDPane2),
+		(HMENU)IDPane2Plot,
+		hInst,
+		nullptr);
 
+	CreateWindow(
+		L"BUTTON",
+		L"Play",
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+		gui.pane2.rectPane2ButtPlay.left,
+		gui.pane2.rectPane2ButtPlay.top,
+		gui.pane2.rectPane2ButtPlay.right,
+		gui.pane2.rectPane2ButtPlay.bottom,
+		GetDlgItem(hWnd, IDPane2),
+		(HMENU)IDPane2ButtPlay,
+		hInst,
+		nullptr);
 
+	CreateWindow(
+		L"BUTTON",
+		L"Stop",
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+		gui.pane2.rectPane2ButtStop.left,
+		gui.pane2.rectPane2ButtStop.top,
+		gui.pane2.rectPane2ButtStop.right,
+		gui.pane2.rectPane2ButtStop.bottom,
+		GetDlgItem(hWnd, IDPane2),
+		(HMENU)IDPane2ButtStop,
+		hInst,
+		nullptr);
+
+	CreateWindow(
+		L"BUTTON",
+		L"Reset",
+		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+		gui.pane2.rectPane2ButtReset.left,
+		gui.pane2.rectPane2ButtReset.top,
+		gui.pane2.rectPane2ButtReset.right,
+		gui.pane2.rectPane2ButtReset.bottom,
+		GetDlgItem(hWnd, IDPane2),
+		(HMENU)IDPane2ButtReset,
+		hInst,
+		nullptr);
+
+	CreateWindowW(
+		L"EDIT",
+		L"",
+		WS_TABSTOP | WS_GROUP | WS_VISIBLE | WS_CHILD | ES_MULTILINE | WS_BORDER,
+		gui.pane2.rectPane2EditCode.left,
+		gui.pane2.rectPane2EditCode.top,
+		gui.pane2.rectPane2EditCode.right,
+		gui.pane2.rectPane2EditCode.bottom,
+		GetDlgItem(hWnd, IDPane2),
+		(HMENU)IDPane2EditCode,
+		hInst,
+		nullptr);
+	SendMessageW(GetDlgItem(hWnd, IDPane2EditCode), EM_LIMITTEXT, MAX_EDITSTRING, 0);
+
+	CreateWindowW(
+		L"EDIT",
+		L"",
+		WS_TABSTOP | WS_GROUP | WS_VISIBLE | WS_CHILD | ES_MULTILINE | WS_BORDER,
+		gui.pane2.rectPane2EditText.left,
+		gui.pane2.rectPane2EditText.top,
+		gui.pane2.rectPane2EditText.right,
+		gui.pane2.rectPane2EditText.bottom,
+		GetDlgItem(hWnd, IDPane2),
+		(HMENU)IDPane2EditText,
+		hInst,
+		nullptr);
+	SendMessageW(GetDlgItem(hWnd, IDPane2EditText), EM_LIMITTEXT, MAX_EDITSTRING, 0);
 
 	// Создание контролов для 3-ой панели
 	CreateWindowW(
@@ -288,7 +376,7 @@ void InitializeUI(HWND hWnd)
 		(HMENU)IDPane3EditText,
 		hInst,
 		nullptr);
-	SendMessageW(GetDlgItem(hWnd, IDPane3EditText), EM_LIMITTEXT, MAX_EDITSTRING / 6, 0);
+	SendMessageW(GetDlgItem(hWnd, IDPane3EditText), EM_LIMITTEXT, MAX_EDITSTRING, 0);
 
 	CreateWindowW(
 		L"EDIT",
@@ -421,7 +509,44 @@ void InitControlsRect(RECT rc)
 		600,
 		200
 	};
+
 	// Инициализация размеров контролов для страницы редактирования
+	gui.pane2.rectPane2ButtPlay = {
+		gui.rectPage.right / 2 - gui.sizeButton.cx / 2,
+		gui.rectPage.top + 8 * gui.sizeIndentation.cy,
+		gui.sizeButton.cx,
+		gui.sizeButton.cy,
+	};
+	gui.pane2.rectPane2ButtStop = {
+		gui.rectPage.right / 2 - gui.sizeButton.cx - gui.sizeButton.cx / 2 - gui.sizeIndentation.cx,
+		gui.rectPage.top + 8 * gui.sizeIndentation.cy,
+		gui.sizeButton.cx,
+		gui.sizeButton.cy,
+	};
+	gui.pane2.rectPane2ButtReset = {
+		gui.rectPage.right / 2 + gui.sizeButton.cx / 2 + gui.sizeIndentation.cx,
+		gui.rectPage.top + 8 * gui.sizeIndentation.cy,
+		gui.sizeButton.cx,
+		gui.sizeButton.cy,
+	};
+	gui.pane2.rectPane2Plot = {
+		gui.sizeIndentation.cx,
+		gui.pane2.rectPane2ButtPlay.top + gui.pane2.rectPane2ButtPlay.bottom + gui.sizeIndentation.cy,
+		gui.rectPage.right - 2 * gui.sizeIndentation.cx,
+		gui.rectPage.bottom / 2 + 6 * gui.sizeIndentation.cy
+	};
+	gui.pane2.rectPane2EditText = {
+		gui.pane2.rectPane2Plot.left,
+		gui.pane2.rectPane2Plot.top + gui.pane2.rectPane2Plot.bottom + 4 * gui.sizeIndentation.cx,
+		gui.pane2.rectPane2Plot.right / 2 - gui.sizeIndentation.cx,
+		gui.rectPage.bottom - (gui.pane2.rectPane2Plot.top + gui.pane2.rectPane2Plot.bottom + 4 * gui.sizeIndentation.cx) - gui.sizeIndentation.cy
+	};
+	gui.pane2.rectPane2EditCode = {
+		gui.pane2.rectPane2Plot.right / 2 + gui.sizeIndentation.cx,
+		gui.pane2.rectPane2Plot.top + gui.pane2.rectPane2Plot.bottom + 4 * gui.sizeIndentation.cx,
+		gui.pane2.rectPane2Plot.right / 2,
+		gui.rectPage.bottom - (gui.pane2.rectPane2Plot.top + gui.pane2.rectPane2Plot.bottom + 4 * gui.sizeIndentation.cx) - gui.sizeIndentation.cy
+	};
 
 	// Инициализация размеров контролов для страницы переводчика
 	gui.pane3.rectPane3EditText =
@@ -602,8 +727,8 @@ void DrawPane1(HWND& hWnd, HINSTANCE& hInst, HDC& hdc)
 	int countChar = 0;
 	TCHAR szBuffer[MAX_LOADSTRING]; // Буфер для хранения загруженной строки
 
-	// Загружаем строку с идентификатором 104 из таблицы строк ресурсов			
-	LoadStringW(hInst, 104, szBuffer, MAX_LOADSTRING);
+	// Загружаем строку с идентификатором IDS_STRING104 из таблицы строк ресурсов			
+	LoadStringW(hInst, IDS_STRING104, szBuffer, MAX_LOADSTRING);
 	countChar = CountCharactersToEnd(szBuffer, MAX_LOADSTRING);
 	TextOutW(hdc, gui.pane1.rectPane1EditRes.left, gui.pane1.rectPane1EditRes.top - 2 * gui.sizeIndentation.cy, szBuffer, countChar);
 }
@@ -613,7 +738,13 @@ void DrawPane2(HWND& hWnd, HINSTANCE& hInst, HDC& hdc)
 	int countChar = 0;
 	TCHAR szBuffer[MAX_LOADSTRING]; // Буфер для хранения загруженной строки
 
+	LoadStringW(hInst, IDS_STRING105, szBuffer, MAX_LOADSTRING);
+	countChar = CountCharactersToEnd(szBuffer, MAX_LOADSTRING);
+	TextOutW(hdc, gui.pane2.rectPane2EditText.left, gui.pane2.rectPane2EditText.top - 2 * gui.sizeIndentation.cy, szBuffer, countChar);
 
+	LoadStringW(hInst, IDS_STRING106, szBuffer, MAX_LOADSTRING);
+	countChar = CountCharactersToEnd(szBuffer, MAX_LOADSTRING);
+	TextOutW(hdc, gui.pane2.rectPane2EditCode.left, gui.pane2.rectPane2EditCode.top - 2 * gui.sizeIndentation.cy, szBuffer, countChar);
 }
 
 void DrawPane3(HWND& hWnd, HINSTANCE& hInst, HDC& hdc)
@@ -621,15 +752,15 @@ void DrawPane3(HWND& hWnd, HINSTANCE& hInst, HDC& hdc)
 	int countChar = 0;
 	TCHAR szBuffer[MAX_LOADSTRING]; // Буфер для хранения загруженной строки
 
-	LoadStringW(hInst, 105, szBuffer, MAX_LOADSTRING);
+	LoadStringW(hInst, IDS_STRING105, szBuffer, MAX_LOADSTRING);
 	countChar = CountCharactersToEnd(szBuffer, MAX_LOADSTRING);
 	TextOutW(hdc, gui.pane3.rectPane3EditText.left, gui.pane3.rectPane3EditText.top - 2 * gui.sizeIndentation.cy, szBuffer, countChar);
 
-	LoadStringW(hInst, 106, szBuffer, MAX_LOADSTRING);
+	LoadStringW(hInst, IDS_STRING106, szBuffer, MAX_LOADSTRING);
 	countChar = CountCharactersToEnd(szBuffer, MAX_LOADSTRING);
 	TextOutW(hdc, gui.pane3.rectPane3EditCode.left, gui.pane3.rectPane3EditCode.top - 2 * gui.sizeIndentation.cy, szBuffer, countChar);
 
-	LoadStringW(hInst, 107, szBuffer, MAX_LOADSTRING);
+	LoadStringW(hInst, IDS_STRING107, szBuffer, MAX_LOADSTRING);
 	countChar = CountCharactersToEnd(szBuffer, MAX_LOADSTRING);
 	TextOutW(hdc, gui.pane3.rectPane3ListDict.left, gui.pane3.rectPane3ListDict.top - 2 * gui.sizeIndentation.cy, szBuffer, countChar);
 }
@@ -641,7 +772,7 @@ void DrawPane4(HWND& hWnd, HINSTANCE& hInst, HDC& hdc)
 
 	DrawImage(hWnd, hInst, hdc, IDB_BITMAP1);
 
-	LoadStringW(hInst, 108, szBuffer, MAX_LOADSTRING);
+	LoadStringW(hInst, IDS_STRING108, szBuffer, MAX_LOADSTRING);
 	countChar = CountCharactersToEnd(szBuffer, MAX_LOADSTRING);
 
 	// Создание нового шрифта
@@ -706,6 +837,25 @@ void DrawPane4(HWND& hWnd, HINSTANCE& hInst, HDC& hdc)
 
 	// Освобождение шрифта после использования
 	DeleteObject(hFont);
+}
+
+void createPopupMenuPlot(HWND hWnd, POINT pt)
+{
+	HMENU hSubMenu = CreatePopupMenu();
+	AppendMenu(hSubMenu, MF_STRING, IDMenuItem8, L"Общее");
+	AppendMenu(hSubMenu, MF_STRING, IDMenuItem9, L"Для положительньных значений");
+	AppendMenu(hSubMenu, MF_STRING, IDMenuItem10, L"Для отрицательных значений");
+
+	HMENU hContextMenu = CreatePopupMenu();
+	AppendMenu(hContextMenu, MF_STRING, IDMenuItem1, L"Открыть файл");
+	AppendMenu(hContextMenu, MF_STRING, IDMenuItem2, L"Сохранить в файл");
+	AppendMenu(hContextMenu, MF_STRING, IDMenuItem3, L"Сохранить в файл как");
+	AppendMenu(hContextMenu, MF_STRING, IDMenuItem4, L"Обрезка тишины");
+	AppendMenu(hContextMenu, MF_STRING, IDMenuItem5, L"Подавление шума");
+	AppendMenu(hContextMenu, MF_STRING, IDMenuItem6, L"Определение широких пиков");
+	AppendMenu(hContextMenu, MF_STRING, IDMenuItem7, L"Пороговое значение");
+	InsertMenu(hContextMenu, -1, MF_BYPOSITION | MF_POPUP, (UINT_PTR)hSubMenu, L"Среднее значение");
+	TrackPopupMenu(hContextMenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON , pt.x, pt.y, 0, hWnd, NULL);
 }
 
 sf_count_t readAudioData(SndfileHandle file, std::vector<std::vector<float>>& samplesByChannel)
@@ -819,7 +969,7 @@ void RecordWithDecode(const HWND hWnd, const int IDControl)
 		{
 			SetWindowTextW(GetDlgItem(hWnd, IDControl), 0);
 		}
-	}	
+	}
 
 	//morse.audioFileToMorse("recorded.wav");
 
