@@ -119,6 +119,8 @@ namespace sf
 			*/
 			Curve& createCurve(const std::string& name, const sf::Color& color = sf::Color::Black, float thickness = 1);
 			
+			int getCurveCount();
+
 			Curve& getCurve(const std::string& name);
 
 			/**
@@ -127,8 +129,6 @@ namespace sf
 			 * @return True if the curve exists, False otherwise.
 			 */
 			bool haveCurve(const std::string& name) const;		
-
-			
 
 		private:
 			// Size of the plot

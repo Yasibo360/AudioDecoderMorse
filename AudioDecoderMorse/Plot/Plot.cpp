@@ -190,6 +190,11 @@ namespace sf
 			return newCurve;
 		}
 
+		int Plot2D::getCurveCount()
+		{
+			return _curves.size();
+		}
+
 		Curve& Plot2D::getCurve(const std::string& name) {
 			auto it = _curves.find(name);
 			if (it == _curves.end()) {

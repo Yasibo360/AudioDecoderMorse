@@ -61,6 +61,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	HDC hdc;
 	RECT rc;
 	static sf::Texture texture;
+	static std::string fileName;
 
 	switch (message)
 	{
@@ -119,7 +120,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 			case IDMenuItem1:
 			{
-				std::string fileName;
 				fileName = openFileDialog();
 
 				SndfileHandle file(fileName);
@@ -183,9 +183,43 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 			case IDMenuItem2:
 			{
-				
+				if (plot.getCurveCount() != 0 && plot.haveCurve("Threshold") == false)
+				{
+					SndfileHandle file(fileName);
 
+					if (file.error() != 0) {
+						OutputDebugString(L"Ошибка при открытии файла: ");
+						OutputDebugString(std::to_wstring(sf_error(file.rawHandle())).c_str());
+					}
 
+					std::vector<std::vector<float>> samplesByChannel;
+					sf_count_t frames_t;
+					frames_t = readAudioData(file, samplesByChannel);
+
+					if (frames_t != 0) {
+						// Вычисляем время для каждого отсчета
+						float samplerate = file.samplerate();
+						float frames = frames_t / file.channels();
+						std::vector<float> time(frames);
+
+						for (int i = 0; i < frames; i++) {
+							time[i] = i / samplerate;
+						}
+
+						sf::Color color = sf::Color::Red;
+						auto boundFunction = std::bind(&Plot_AmpTime::graphHorizontalLine, &plot, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
+						plot.addCurve("Threshold", boundFunction, time, samplesByChannel[0], color, 2);
+
+						// Создаем экземпляр sf::RenderWindow с контекстом устройства окна
+						sf::RenderWindow window(GetDlgItem(hWnd, IDPane2Plot));
+
+						// Рисуем график
+						window.draw(plot);
+
+						// Отображаем изменения
+						window.display();
+					}			
+				}
 			}
 			break;
 			case IDMenuItem3:

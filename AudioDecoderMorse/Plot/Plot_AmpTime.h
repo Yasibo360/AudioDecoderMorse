@@ -19,6 +19,8 @@ class Plot_AmpTime
             const std::string& font = ""
         );
 
+        ~Plot_AmpTime() {}
+
         void addCurve(const std::string& name,
             std::function<void(sf::Plot::Curve&, const std::vector<float>&, const std::vector<float>&, const sf::Vector2f&)> function,
             const std::vector<float>& axisX, 
@@ -27,7 +29,12 @@ class Plot_AmpTime
             float thickness = 1
         );
 
+        bool haveCurve(const std::string& name);
+        int getCurveCount();
+
         void addWidePeaks(std::vector<std::pair<float, float>> merged_peak_ranges, float minTime, float maxTime);
 
         void graphAmplitudeFromTime(sf::Plot::Curve& curve, const std::vector<float>& time, const std::vector<float>& samples, const sf::Vector2f& graphSize);
+
+        void graphHorizontalLine(sf::Plot::Curve& curve, const std::vector<float>& time, const std::vector<float>& samples, const sf::Vector2f& graphSize);
 };

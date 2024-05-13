@@ -26,6 +26,16 @@ void Plot_AmpTime::addCurve(
     _plot.setupGrid(sf::Vector2f(5, 0), sf::Vector2f(0, 5)); // 5 is the number of grid lines
 }
 
+bool Plot_AmpTime::haveCurve(const std::string& name)
+{
+    return _plot.haveCurve(name);
+}
+
+int Plot_AmpTime::getCurveCount()
+{
+    return _plot.getCurveCount();
+}
+
 void Plot_AmpTime::addWidePeaks(std::vector<std::pair<float, float>> merged_peak_ranges, float minTime, float maxTime)
 {
     for (const auto& range : merged_peak_ranges) {
@@ -55,6 +65,32 @@ void Plot_AmpTime::graphAmplitudeFromTime(sf::Plot::Curve& curve, const std::vec
         float k = N / (maxSample - minSample + 2 * N) * graphSize.y;
 
         y = graphSize.y - (samples[i] - minSample) / (maxSample - minSample) * (graphSize.y - 2 * k) - k / 2;
+
+        curve.addVertex(sf::Vector2f(x, y));
+    }
+
+    return;
+}
+
+void Plot_AmpTime::graphHorizontalLine(sf::Plot::Curve& curve, const std::vector<float>& time, const std::vector<float>& samples, const sf::Vector2f& graphSize) {
+    float x = 0.0f;
+    float y = 0.0f;
+
+    float minSample = *std::min_element(samples.begin(), samples.end());
+    float maxSample = *std::max_element(samples.begin(), samples.end());
+    float minTime = *std::min_element(time.begin(), time.end());
+    float maxTime = *std::max_element(time.begin(), time.end());
+
+    float max_sample = *std::max_element(samples.begin(), samples.end());
+    float tresh = max_sample * 0.5;
+
+    for (std::size_t i = 0; i < samples.size(); ++i) {
+        x = (time[i] - minTime) / (maxTime - minTime) * graphSize.x;
+
+        float N = std::abs(std::abs(maxSample) - std::abs(minSample));
+        float k = N / (maxSample - minSample + 2 * N) * graphSize.y;
+
+        y = graphSize.y - (tresh - minSample) / (maxSample - minSample) * (graphSize.y - 2 * k) - k / 2;
 
         curve.addVertex(sf::Vector2f(x, y));
     }
