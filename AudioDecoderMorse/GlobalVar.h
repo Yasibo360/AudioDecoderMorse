@@ -13,6 +13,7 @@
 #include "ControlsID.h"
 #include "My_GUI.h"
 
+#include "Plot/Plot_AmpTime.h"
 #include "Morse—ode.h"
 #include "AudioRecorder.h"
 #include "AudioDecoderMorse.h"
@@ -42,3 +43,4 @@ extern My_GUI gui;
 extern Morse—ode morse;
 extern AudioRecorder recorder;
 extern std::thread threadPlaingMorse;
+extern Plot_AmpTime plot;

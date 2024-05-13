@@ -20,4 +20,5 @@ My_GUI gui;
 // Мои глобальные переменные
 MorseСode morse;
 AudioRecorder recorder("recorded.wav");
-std::thread threadPlaingMorse; 
+std::thread threadPlaingMorse;
+Plot_AmpTime plot(sf::Vector2f(0, 0), sf::Vector2f(0, 0), "recorded.wav", "arial.ttf");

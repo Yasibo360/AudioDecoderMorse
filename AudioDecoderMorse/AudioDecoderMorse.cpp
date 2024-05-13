@@ -60,6 +60,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	PAINTSTRUCT ps;
 	HDC hdc;
 	RECT rc;
+	static sf::Texture texture;
 
 	switch (message)
 	{
@@ -70,8 +71,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	break;
 	case WM_COMMAND:
 	{
-		int wmId = LOWORD(wParam);
-
 		switch HIWORD(wParam)
 		{
 		case BN_CLICKED:
@@ -116,6 +115,92 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			case IDPane3ButtAddDict:
 			{
 				addDictionary(hWnd, IDPane3ListDict);
+			}
+			break;
+			case IDMenuItem1:
+			{
+				std::string fileName;
+				fileName = openFileDialog();
+
+				SndfileHandle file(fileName);
+
+				if (file.error() != 0) {
+					OutputDebugString(L"Ошибка при открытии файла: ");
+					OutputDebugString(std::to_wstring(sf_error(file.rawHandle())).c_str());
+				}
+
+				std::vector<std::vector<float>> samplesByChannel;
+				sf_count_t frames_t;
+				frames_t = readAudioData(file, samplesByChannel);
+
+				if (frames_t != 0) {
+					std::size_t found = fileName.find_last_of("/\\"); // Находим последний символ '/' или '\'
+					std::string just_fileName = fileName.substr(found + 1); // Обрезаем путь до последнего символа '/' или '\'
+
+					GetClientRect(GetDlgItem(hWnd, IDPane2Plot), &rc);
+
+					plot = Plot_AmpTime(sf::Vector2f(rc.right, rc.bottom), sf::Vector2f(0, 0), just_fileName, "arial.ttf");
+
+					// Вычисляем время для каждого отсчета
+					float samplerate = file.samplerate();
+					float frames = frames_t / file.channels();
+					std::vector<float> time(frames);
+
+					for (int i = 0; i < frames; i++) {
+						time[i] = i / samplerate;
+					}
+
+					// Вычисляем период сигнала
+					float period = 1.0 / samplerate;
+
+					// Получаем начальное и конечное время
+					float timeStart = time.front();
+					float timeEnd = time.back();
+
+					std::vector<std::pair<float, float>> widePeaks = morse.findWidePeaksInAudioFile(fileName);
+
+					auto boundFunction = std::bind(&Plot_AmpTime::graphAmplitudeFromTime, &plot, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
+					plot.addCurve("Right channel", boundFunction, time, samplesByChannel[0]);
+					plot.addWidePeaks(widePeaks, timeStart, timeEnd);
+
+					// Создаем экземпляр sf::RenderWindow с контекстом устройства окна
+					sf::RenderWindow window(GetDlgItem(hWnd, IDPane2Plot));
+
+					// Рисуем график
+					window.draw(plot);
+
+					// Отображаем изменения
+					window.display();
+
+					// Сохраняем изображение графика в файл
+					sf::Vector2u winSize = window.getSize();
+					texture.create(winSize.x, winSize.y);
+
+					// Сохраняем содержимое окна в текстуру
+					texture.update(window);
+				}
+			}
+			break;
+			case IDMenuItem2:
+			{
+				
+
+
+			}
+			break;
+			case IDMenuItem3:
+			{
+				
+			}
+			break;
+			case IDMenuItem4:
+			{
+
+			}
+			break;
+			case IDMenuItem5:
+			{
+
 			}
 			break;
 			default:
@@ -179,6 +264,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		if (hWnd == GetParent(GetDlgItem(hWnd, IDPane2Plot))) {
 			DrawPane2(hWnd, hInst, hdc);
+			DrawPlot(hWnd, texture);
 		}
 
 		if (hWnd == GetParent(GetDlgItem(hWnd, IDPane3EditText))) {
@@ -231,50 +317,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 		default:
 			DrawButton(hInst, lpDrawItem);
-		}
-	}
-	break;
-	case WM_MENUSELECT:
-	{
-		switch LOWORD(wParam)
-		{
-		case IDMenuItem1:
-		{
-			
-		}
-		break;
-		case IDMenuItem2:
-		{
-			
-		}
-		break;
-		case IDMenuItem3:
-		{
-			
-		}
-		break;
-		case IDMenuItem4:
-		{
-			
-		}
-		break;
-		case IDMenuItem5:
-		{
-			
-		}
-		break;
-		case IDMenuItem6:
-		{
-			
-		}
-		break;
-		case IDMenuItem7:
-		{
-			
-		}
-		break;
-		default:
-			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
 	}
 	break;

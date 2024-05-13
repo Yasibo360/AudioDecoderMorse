@@ -206,7 +206,7 @@ std::wstring MorseÑode::peakDurationsToMorse(const std::vector<std::pair<char, f
 	return morseCode;
 }
 
-std::wstring MorseÑode::audioFileToMorse(std::string filename)
+std::vector<std::pair<float, float>> MorseÑode::findWidePeaksInAudioFile(std::string filename)
 {
 	// Îòêğûòèå ôàéëà äëÿ ÷òåíèÿ
 	SndfileHandle file(filename);
@@ -219,7 +219,7 @@ std::wstring MorseÑode::audioFileToMorse(std::string filename)
 
 	// Âû÷èñëÿåì ïîğîãîâîå çíà÷åíèå
 	float max_sample = *std::max_element(samplesByChannels[0].begin(), samplesByChannels[0].end());
-	_threshold = max_sample * 0.5;
+	setThreshold(max_sample * 0.5);
 
 	// Âû÷èñëÿåì âğåìÿ äëÿ êàæäîãî îòñ÷åòà
 	float samplerate = file.samplerate();
@@ -235,12 +235,7 @@ std::wstring MorseÑode::audioFileToMorse(std::string filename)
 	std::vector<std::pair<float, float>> widePeaks;
 	widePeaks = findWidePeaks(samplesByChannels[0], time, period);
 
-	std::vector<std::pair<char, float>> peakDurations;
-	peakDurations = findPeakDurations(widePeaks, 2);
-
-	std::wstring result = peakDurationsToMorse(peakDurations);
-
-	return result;
+	return widePeaks;
 }
 
 std::vector<std::pair<float, float>> MorseÑode::findWidePeaks(std::vector<float>& samples, std::vector<float>& time, float period)
@@ -306,7 +301,12 @@ std::vector<std::pair<char, float>> MorseÑode::findPeakDurations(std::vector<std
 	return peak_durations;
 }
 
-float MorseÑode::getThreshold()
+void MorseÑode::setThreshold(float threshold)
+{
+	_threshold = threshold;
+}
+
+float MorseÑode::getThreshold() const
 {
 	return _threshold;
 };

@@ -839,23 +839,38 @@ void DrawPane4(HWND& hWnd, HINSTANCE& hInst, HDC& hdc)
 	DeleteObject(hFont);
 }
 
+void DrawPlot(HWND& hWnd, sf::Texture& texture)
+{
+	if (texture.getSize().x != 0 || texture.getSize().y != 0) {		
+		// Создаем экземпляр sf::RenderWindow с контекстом устройства окна
+		sf::RenderWindow window(GetDlgItem(hWnd, IDPane2Plot));
+
+		// Создаем объект sf::Sprite и устанавливаем на него текстуру
+		sf::Sprite sprite;
+		sprite.setTexture(texture);
+
+		// Отображаем текстуру в окне
+		window.clear();
+		window.draw(sprite);
+		window.display();
+
+		UpdateWindow(GetDlgItem(hWnd, IDPane2Plot));
+	}
+}
+
 void createPopupMenuPlot(HWND hWnd, POINT pt)
 {
 	HMENU hSubMenu = CreatePopupMenu();
-	AppendMenu(hSubMenu, MF_STRING, IDMenuItem8, L"Общее");
-	AppendMenu(hSubMenu, MF_STRING, IDMenuItem9, L"Для положительньных значений");
-	AppendMenu(hSubMenu, MF_STRING, IDMenuItem10, L"Для отрицательных значений");
+	AppendMenu(hSubMenu, MF_STRING | MF_UNCHECKED, IDMenuItem3, L"Общее");
+	AppendMenu(hSubMenu, MF_STRING | MF_UNCHECKED, IDMenuItem4, L"Для положительньных значений");
+	AppendMenu(hSubMenu, MF_STRING | MF_UNCHECKED, IDMenuItem5, L"Для отрицательных значений");
 
 	HMENU hContextMenu = CreatePopupMenu();
 	AppendMenu(hContextMenu, MF_STRING, IDMenuItem1, L"Открыть файл");
-	AppendMenu(hContextMenu, MF_STRING, IDMenuItem2, L"Сохранить в файл");
-	AppendMenu(hContextMenu, MF_STRING, IDMenuItem3, L"Сохранить в файл как");
-	AppendMenu(hContextMenu, MF_STRING, IDMenuItem4, L"Обрезка тишины");
-	AppendMenu(hContextMenu, MF_STRING, IDMenuItem5, L"Подавление шума");
-	AppendMenu(hContextMenu, MF_STRING, IDMenuItem6, L"Определение широких пиков");
-	AppendMenu(hContextMenu, MF_STRING, IDMenuItem7, L"Пороговое значение");
+	AppendMenu(hContextMenu, MF_STRING | MF_UNCHECKED, IDMenuItem2, L"Пороговое значение");
 	InsertMenu(hContextMenu, -1, MF_BYPOSITION | MF_POPUP, (UINT_PTR)hSubMenu, L"Среднее значение");
 	TrackPopupMenu(hContextMenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON , pt.x, pt.y, 0, hWnd, NULL);
+
 }
 
 sf_count_t readAudioData(SndfileHandle file, std::vector<std::vector<float>>& samplesByChannel)
@@ -891,12 +906,6 @@ sf_count_t readAudioData(SndfileHandle file, std::vector<std::vector<float>>& sa
 	}
 
 	return framesRead;
-}
-
-sf_count_t readAudioFile(SndfileHandle file, std::vector<std::vector<float>>& samplesByChannel)
-{
-
-	return sf_count_t();
 }
 
 void addDictionary(const HWND hWnd, const int IDControl)
@@ -948,11 +957,15 @@ void RecordWithDecode(const HWND hWnd, const int IDControl)
 	}
 	else {
 		recorder.StopRecording();
-		morse.audioFileToMorse("recorded.wav");
 
 		std::wstring morseCode;
 		std::wstring morseChar;
-		morseCode = morse.audioFileToMorse("recorded.wav");
+		std::vector<std::pair<float, float>> widePeaks;
+		std::vector<std::pair<char, float>> peakDurations;
+
+		widePeaks = morse.findWidePeaksInAudioFile("recorded.wav");	
+		peakDurations = morse.findPeakDurations(widePeaks, 2);
+		morseCode = morse.peakDurationsToMorse(peakDurations);
 		morseChar = morse.morseToChar(morseCode);
 
 		WCHAR buffer[MAX_EDITSTRING];

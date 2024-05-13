@@ -41,12 +41,12 @@ void DrawPane3(HWND& hWnd, HINSTANCE& hInst, HDC& hdc);
 
 void DrawPane4(HWND& hWnd, HINSTANCE& hInst, HDC& hdc);
 
+void DrawPlot(HWND& hWnd, sf::Texture& texture);
+
 void createPopupMenuPlot(HWND hWnd, POINT pt);
 
 // Фукнции для работы с файлом
 sf_count_t readAudioData(SndfileHandle file, std::vector<std::vector<float>>& samplesByChannel);
-
-sf_count_t readAudioFile(SndfileHandle file, std::vector<std::vector<float>>& samplesByChannel);
 
 void addDictionary(const HWND hWnd, const int IDControl);
 

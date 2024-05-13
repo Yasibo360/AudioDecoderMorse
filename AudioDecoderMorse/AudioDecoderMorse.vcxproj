@@ -137,6 +137,12 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="GlobalVar.h" />
     <ClInclude Include="MorseСode.h" />
+    <ClInclude Include="Plot\Axis.h" />
+    <ClInclude Include="Plot\Curve.h" />
+    <ClInclude Include="Plot\Grid.h" />
+    <ClInclude Include="Plot\Legend.h" />
+    <ClInclude Include="Plot\Plot.h" />
+    <ClInclude Include="Plot\Plot_AmpTime.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="targetver.h" />
@@ -148,6 +154,12 @@
     <ClCompile Include="GlobalVar.cpp" />
     <ClCompile Include="MorseСode.cpp" />
     <ClCompile Include="MyFunction.cpp" />
+    <ClCompile Include="Plot\Axis.cpp" />
+    <ClCompile Include="Plot\Curve.cpp" />
+    <ClCompile Include="Plot\Grid.cpp" />
+    <ClCompile Include="Plot\Legend.cpp" />
+    <ClCompile Include="Plot\Plot.cpp" />
+    <ClCompile Include="Plot\Plot_AmpTime.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="AudioDecoderMorse.rc" />

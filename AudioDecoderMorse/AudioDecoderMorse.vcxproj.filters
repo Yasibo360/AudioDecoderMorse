@@ -22,6 +22,12 @@
     <Filter Include="Файлы заголовков\Зависимости\VS">
       <UniqueIdentifier>{a1529de2-7a09-4cd0-a14e-1b108b297c7f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Файлы заголовков\Plot">
+      <UniqueIdentifier>{e06660d2-7f22-4811-9b54-f33288c3a3e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Plot">
+      <UniqueIdentifier>{8d305644-c2f4-4233-91bd-119c00d64831}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AudioDecoderMorse.h">
@@ -54,14 +60,26 @@
     <ClInclude Include="targetver.h">
       <Filter>Файлы заголовков\Зависимости\VS</Filter>
     </ClInclude>
-    <ClInclude Include="WavReaderWriter.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="WavFileStructures.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="AudioRecorder.h">
       <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Plot\Plot_AmpTime.h">
+      <Filter>Файлы заголовков\Plot</Filter>
+    </ClInclude>
+    <ClInclude Include="Plot\Plot.h">
+      <Filter>Файлы заголовков\Plot</Filter>
+    </ClInclude>
+    <ClInclude Include="Plot\Legend.h">
+      <Filter>Файлы заголовков\Plot</Filter>
+    </ClInclude>
+    <ClInclude Include="Plot\Grid.h">
+      <Filter>Файлы заголовков\Plot</Filter>
+    </ClInclude>
+    <ClInclude Include="Plot\Curve.h">
+      <Filter>Файлы заголовков\Plot</Filter>
+    </ClInclude>
+    <ClInclude Include="Plot\Axis.h">
+      <Filter>Файлы заголовков\Plot</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -77,11 +95,26 @@
     <ClCompile Include="MorseСode.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="WavReaderWriter.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="GlobalVar.cpp">
       <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Plot\Axis.cpp">
+      <Filter>Исходные файлы\Plot</Filter>
+    </ClCompile>
+    <ClCompile Include="Plot\Curve.cpp">
+      <Filter>Исходные файлы\Plot</Filter>
+    </ClCompile>
+    <ClCompile Include="Plot\Grid.cpp">
+      <Filter>Исходные файлы\Plot</Filter>
+    </ClCompile>
+    <ClCompile Include="Plot\Legend.cpp">
+      <Filter>Исходные файлы\Plot</Filter>
+    </ClCompile>
+    <ClCompile Include="Plot\Plot.cpp">
+      <Filter>Исходные файлы\Plot</Filter>
+    </ClCompile>
+    <ClCompile Include="Plot\Plot_AmpTime.cpp">
+      <Filter>Исходные файлы\Plot</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

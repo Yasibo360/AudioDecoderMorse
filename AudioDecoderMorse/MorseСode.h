@@ -47,13 +47,14 @@ public:
 
 	std::wstring peakDurationsToMorse(const std::vector<std::pair<char, float>>& peakDurations, float precision = -2);
 
-	std::wstring audioFileToMorse(std::string filename);
+	std::vector<std::pair<float, float>> findWidePeaksInAudioFile(std::string filename);
 
 	std::vector<std::pair<float, float>> findWidePeaks(std::vector<float>& samples, std::vector<float>& time, float period);
 
 	std::vector<std::pair<char, float>> findPeakDurations(std::vector<std::pair<float, float>>& widePeaks, float precision);
 
-	float getThreshold();
+	void setThreshold(float threshold);
+	float getThreshold() const;
 
 	void playMorseCode(std::wstring& morseCode);
 };
