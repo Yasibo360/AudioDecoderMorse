@@ -311,19 +311,6 @@ void InitializeUI(HWND hWnd)
 
 	CreateWindow(
 		L"BUTTON",
-		L"Stop",
-		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-		gui.pane2.rectPane2ButtStop.left,
-		gui.pane2.rectPane2ButtStop.top,
-		gui.pane2.rectPane2ButtStop.right,
-		gui.pane2.rectPane2ButtStop.bottom,
-		GetDlgItem(hWnd, IDPane2),
-		(HMENU)IDPane2ButtStop,
-		hInst,
-		nullptr);
-
-	CreateWindow(
-		L"BUTTON",
 		L"Reset",
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 		gui.pane2.rectPane2ButtReset.left,
@@ -517,12 +504,6 @@ void InitControlsRect(RECT rc)
 		gui.sizeButton.cx,
 		gui.sizeButton.cy,
 	};
-	gui.pane2.rectPane2ButtStop = {
-		gui.rectPage.right / 2 - gui.sizeButton.cx - gui.sizeButton.cx / 2 - gui.sizeIndentation.cx,
-		gui.rectPage.top + 2 * gui.sizeIndentation.cy,
-		gui.sizeButton.cx,
-		gui.sizeButton.cy,
-	};
 	gui.pane2.rectPane2ButtReset = {
 		gui.rectPage.right / 2 + gui.sizeButton.cx / 2 + gui.sizeIndentation.cx,
 		gui.rectPage.top + 2 * gui.sizeIndentation.cy,
@@ -547,7 +528,7 @@ void InitControlsRect(RECT rc)
 		gui.pane2.rectPane2Plot.right / 2,
 		gui.rectPage.bottom - (gui.pane2.rectPane2Plot.top + gui.pane2.rectPane2Plot.bottom + 4 * gui.sizeIndentation.cx) - gui.sizeIndentation.cy
 	};
-	
+
 	// Инициализация размеров контролов для страницы переводчика
 	gui.pane3.rectPane3EditText =
 	{
@@ -770,73 +751,49 @@ void DrawPane4(HWND& hWnd, HINSTANCE& hInst, HDC& hdc)
 	int countChar = 0;
 	TCHAR szBuffer[MAX_LOADSTRING]; // Буфер для хранения загруженной строки
 
-	DrawImage(hWnd, hInst, hdc, IDB_BITMAP1);
+	sf::RenderWindow window(hWnd);
+
+	sf::Texture backgroundTexture;
+	if (!backgroundTexture.loadFromFile("radist.bmp")) {
+		return;
+	}
+
+	sf::Sprite background(backgroundTexture);
+
+	sf::Font font;
+	if (!font.loadFromFile("arial.ttf")) {
+		return;
+	}
 
 	LoadStringW(hInst, IDS_STRING108, szBuffer, MAX_LOADSTRING);
 	countChar = CountCharactersToEnd(szBuffer, MAX_LOADSTRING);
 
-	// Создание нового шрифта
-	HFONT hFont = CreateFont(
-		40, // Высота шрифта
-		0, // Ширина шрифта
-		0, // Угол поворота шрифта
-		0, // Угол наклона шрифта
-		FW_BOLD, // Толщина шрифта
-		FALSE, // Курсив
-		FALSE, // Подчеркивание
-		FALSE, // Зачеркивание
-		DEFAULT_CHARSET, // Набор символов
-		OUT_DEFAULT_PRECIS, // Точность вывода
-		CLIP_DEFAULT_PRECIS, // Точность отсечения
-		DEFAULT_QUALITY, // Качество шрифта
-		DEFAULT_PITCH | FF_SWISS, // Начертание шрифта
-		L"Arial" // Имя шрифта
-	);
+	sf::Text headline(szBuffer, font, 36);
+	headline.setFillColor(sf::Color::White);
+	headline.setPosition(window.getSize().x / 2 - headline.getGlobalBounds().getSize().x / 2, window.getSize().y / 12);
 
-	// Выбор нового шрифта для контекста устройства
-	HGDIOBJ oldFont = SelectObject(hdc, hFont);
+	sf::RectangleShape rectangle(sf::Vector2f(450, 550));
+	rectangle.setPosition(gui.rectPage.right - 450 - 4 * gui.sizeIndentation.cy, gui.rectPage.top + 14 * gui.sizeIndentation.cy);
+	rectangle.setFillColor(sf::Color(0, 0, 0, 128));
 
-	TextOutW(
-		hdc,
-		gui.rectPage.right / 2 - 12 * gui.sizeIndentation.cx,
-		gui.rectPage.top + 6 * gui.sizeIndentation.cy,
-		szBuffer,
-		countChar
-	);
+	WCHAR str[] = L"Данное приложение представляет из себя Аудидекодер\
+				\nМорзе.\
+				\n\nФункциональные возможности приложения:\
+				\n\n- расшифровка аудиофайлов .wav;\
+				\n\n- расшифровка аудиозаписи с устройства ввода;\
+				\n\n- кодирование / декодирование сообщений на азбуке Морзе;\
+				\n\n- визуализация аудиоданных и кода Морзе в .wav файле.";
 
-	// Создание сплошной кисти с белым цветом
-	HBRUSH brush = CreateSolidBrush(RGB(255, 255, 255));
+	sf::Text text(str, font, 15);
+	text.setFillColor(sf::Color::White);
+	text.setPosition(rectangle.getPosition().x + gui.sizeIndentation.cx, rectangle.getPosition().y + gui.sizeIndentation.cy);
 
-	// Заполнение прямоугольника кистью
-	RECT rectText = {
-		gui.rectPage.right - 450 - 4 * gui.sizeIndentation.cy,
-		gui.rectPage.top + 14 * gui.sizeIndentation.cy,
-		gui.rectPage.right - 4 * gui.sizeIndentation.cy,
-		gui.rectPage.top + 300 + 14 * gui.sizeIndentation.cy
-	};
-	FillRect(hdc, &rectText, brush);
 
-	// Выбор нового шрифта для контекста устройства
-	SelectObject(hdc, oldFont);
-
-	SetTextColor(hdc, RGB(0, 0, 0));
-	SetBkMode(hdc, TRANSPARENT); // Установка режима прозрачного фона	
-	WCHAR text[] = L"Данное приложение разрабатывалось в рамках проекта ВКР по направлению 09.03.01\
-				\n\nДанное приложение представляет из себя Аудидекодер Морзе.\
-				\nОно способно расшифровывать аудиосигнал с зашифрованным сообщением на азбуке Морзе.";
-	rectText = {
-		gui.rectPage.right - 450 - 3 * gui.sizeIndentation.cy,
-		gui.rectPage.top + 15 * gui.sizeIndentation.cy,
-		gui.rectPage.right - 5 * gui.sizeIndentation.cy,
-		gui.rectPage.top + 300 + 13 * gui.sizeIndentation.cy
-	};
-	DrawTextW(hdc, text, -1, &rectText, DT_LEFT | DT_TOP | DT_WORDBREAK);
-
-	// Удаление кисти
-	DeleteObject(brush);
-
-	// Освобождение шрифта после использования
-	DeleteObject(hFont);
+	window.draw(background);
+	window.draw(rectangle);
+	window.draw(headline);
+	window.draw(text);
+	window.display();
 }
 
 void DrawPlot(HWND& hWnd, sf::Texture& texture)
@@ -860,27 +817,27 @@ void DrawPlot(HWND& hWnd, sf::Texture& texture)
 
 void processPlotData(const std::string& fileName, const std::string& curveName, const int typeLine, const sf::Color& color, HWND hWnd, int controlID, Plot_AmpTime& plot)
 {
-    if (plot.getCurveCount() != 0 && plot.haveCurve(curveName.c_str()) == false)
-    {
-        SndfileHandle file(fileName);
+	if (plot.getCurveCount() != 0 && plot.haveCurve(curveName.c_str()) == false)
+	{
+		SndfileHandle file(fileName);
 
-        if (file.error() != 0) {
-            OutputDebugString(L"Ошибка при открытии файла: ");
-            OutputDebugString(std::to_wstring(sf_error(file.rawHandle())).c_str());
-        }
+		if (file.error() != 0) {
+			OutputDebugString(L"Ошибка при открытии файла: ");
+			OutputDebugString(std::to_wstring(sf_error(file.rawHandle())).c_str());
+		}
 
-        std::vector<std::vector<float>> samplesByChannel;
-        sf_count_t frames_t;
-        frames_t = readAudioData(file, samplesByChannel);
+		std::vector<std::vector<float>> samplesByChannel;
+		sf_count_t frames_t;
+		frames_t = readAudioData(file, samplesByChannel);
 
-        if (frames_t != 0) {
-            float samplerate = file.samplerate();
-            float frames = frames_t / file.channels();
-            std::vector<float> time(frames);
+		if (frames_t != 0) {
+			float samplerate = file.samplerate();
+			float frames = frames_t / file.channels();
+			std::vector<float> time(frames);
 
-            for (int i = 0; i < frames; i++) {
-                time[i] = i / samplerate;
-            }
+			for (int i = 0; i < frames; i++) {
+				time[i] = i / samplerate;
+			}
 
 			auto boundFunction = std::bind(&Plot_AmpTime::graphThresholdLine, &plot, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
 			switch (typeLine)
@@ -909,13 +866,13 @@ void processPlotData(const std::string& fileName, const std::string& curveName, 
 				break;
 			}
 
-            plot.addCurve(curveName.c_str(), boundFunction, time, samplesByChannel[0], color, 2);
+			plot.addCurve(curveName.c_str(), boundFunction, time, samplesByChannel[0], color, 2);
 
-            sf::RenderWindow window(GetDlgItem(hWnd, controlID));
-            window.draw(plot);
-            window.display();
-        }
-    }
+			sf::RenderWindow window(GetDlgItem(hWnd, controlID));
+			window.draw(plot);
+			window.display();
+		}
+	}
 }
 
 void createPopupMenuPlot(HWND hWnd, POINT pt)
@@ -1012,59 +969,80 @@ std::string openFileDialog()
 
 void RecordWithDecode(const HWND hWnd, const int IDControl)
 {
-	if (!recorder.IsRecording()) {
-		recorder.StartRecording();
-	}
-	else {
-		recorder.StopRecording();
+	//if (!recorder.IsRecording()) {
+	//	recorder.StartRecording();
+	//}
+	//else {
+	//	recorder.StopRecording();
 
-		std::wstring morseCode;
-		std::wstring morseChar;
-		std::vector<std::pair<float, float>> widePeaks;
-		std::vector<std::pair<char, float>> peakDurations;
+	//	std::wstring morseCode;
+	//	std::wstring morseChar;
+	//	std::vector<std::pair<float, float>> widePeaks;
+	//	std::vector<std::pair<char, float>> peakDurations;
 
-		widePeaks = morse.findWidePeaksInAudioFile("recorded.wav");
-		peakDurations = morse.findPeakDurations(widePeaks, 2);
-		morseCode = morse.peakDurationsToMorse(peakDurations);
-		morseChar = morse.morseToChar(morseCode);
+	//	widePeaks = morse.findWidePeaksInAudioFile("recorded.wav");
+	//	peakDurations = morse.findPeakDurations(widePeaks, 2);
+	//	morseCode = morse.peakDurationsToMorse(peakDurations);
+	//	morseChar = morse.morseToChar(morseCode);
 
-		WCHAR buffer[MAX_EDITSTRING];
-		if (morseChar.length() != 0)
-		{
-			for (size_t i = 0; i < morseChar.length(); i++)
-			{
-				buffer[i] = morseChar[i];
-			}
-			buffer[morseChar.length()] = '\0';
-			SetWindowTextW(GetDlgItem(hWnd, IDControl), buffer);
-		}
-		else
-		{
-			SetWindowTextW(GetDlgItem(hWnd, IDControl), 0);
-		}
-	}
-
-	//morse.audioFileToMorse("recorded.wav");
-
-	//std::wstring morseCode;
-	//std::wstring morseChar;
-	//morseCode = morse.audioFileToMorse("recorded.wav");
-	//morseChar = morse.morseToChar(morseCode);
-
-	//WCHAR buffer[MAX_EDITSTRING];
-	//if (morseChar.length() != 0)
-	//{
-	//	for (size_t i = 0; i < morseChar.length(); i++)
+	//	WCHAR buffer[MAX_EDITSTRING];
+	//	if (morseChar.length() != 0)
 	//	{
-	//		buffer[i] = morseChar[i];
-	//		buffer[i + 1] = '\0';
+	//		for (size_t i = 0; i < morseChar.length(); i++)
+	//		{
+	//			buffer[i] = morseChar[i];
+	//		}
+	//		buffer[morseChar.length()] = '\0';
+	//		SetWindowTextW(GetDlgItem(hWnd, IDControl), buffer);
 	//	}
-	//	SetWindowTextW(GetDlgItem(hWndPane1, IDPane1EditRes), buffer);
+	//	else
+	//	{
+	//		SetWindowTextW(GetDlgItem(hWnd, IDControl), 0);
+	//	}
 	//}
-	//else
-	//{
-	//	SetWindowTextW(GetDlgItem(hWnd, IDPane1EditRes), 0);
-	//}
+
+
+
+	std::wstring morseCode;
+	std::wstring morseChar;
+	std::vector<std::pair<float, float>> widePeaks;
+	std::vector<std::pair<char, float>> peakDurations;
+
+	widePeaks = morse.findWidePeaksInAudioFile("recorded.wav");
+	peakDurations = morse.findPeakDurations(widePeaks, 2);
+	morseCode = morse.peakDurationsToMorse(peakDurations);
+	morseChar = morse.morseToChar(morseCode);
+
+	WCHAR buffer[MAX_EDITSTRING];
+	if (morseChar.length() != 0)
+	{
+		for (size_t i = 0; i < morseChar.length(); i++)
+		{
+			buffer[i] = morseChar[i];
+		}
+		buffer[morseChar.length()] = '\0';
+		SetWindowTextW(GetDlgItem(hWnd, IDControl), buffer);
+	}
+	else
+	{
+		SetWindowTextW(GetDlgItem(hWnd, IDControl), 0);
+	}
+}
+
+void playAudioFromBuffer(const std::string& fileName, sf::Sound& sound)
+{
+	sf::SoundBuffer buffer;
+	if (!buffer.loadFromFile(fileName)) {
+		std::cerr << "Failed to load audio file" << std::endl;
+		return;
+	}
+
+	sound.setBuffer(buffer);
+	sound.play();
+
+	while (sound.getStatus() == sf::SoundSource::Playing) {}
+
+	sound.stop();
 }
 
 void DrawImage(HWND& hWnd, HINSTANCE& hInst, HDC& hdc, int IDB_BITMAP)

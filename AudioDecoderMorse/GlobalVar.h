@@ -5,7 +5,9 @@
 #include <windowsx.h>
 
 #include <thread>
+#include <future>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp >
 #include "Resource.h"
 #include "framework.h"
 

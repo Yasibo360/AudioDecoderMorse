@@ -62,12 +62,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	RECT rc;
 	static sf::Texture texture;
 	static std::string fileName;
+	static sf::Sound sound;
 
 	switch (message)
 	{
 	case WM_CREATE:
 	{
 		OnCreate(hWnd);
+		texture = {};
+		fileName = "";
+		sound = {};
 	}
 	break;
 	case WM_COMMAND:
@@ -116,6 +120,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			case IDPane3ButtAddDict:
 			{
 				addDictionary(hWnd, IDPane3ListDict);
+			}
+			break;
+			case IDPane2ButtPlay:
+			{
+				if (fileName != "") {
+					std::thread audioThread(playAudioFromBuffer, fileName, std::ref(sound));
+					audioThread.detach();
+				}
+			}
+			break;
+			case IDPane2ButtReset:
+			{
+				sound.stop();
 			}
 			break;
 			case IDMenuItem1:
@@ -221,7 +238,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				processPlotData(fileName, "Mean value", 1, sf::Color(255, 140, 0, 255), hWnd, IDPane2Plot, plot);
 			}
-			break;			
+			break;
 			case IDMenuItem4:
 			{
 				processPlotData(fileName, "Mean positive value", 2, sf::Color(255, 215, 0, 255), hWnd, IDPane2Plot, plot);

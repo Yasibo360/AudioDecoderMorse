@@ -57,6 +57,8 @@ std::string openFileDialog();
 // Фукнции для работы со звуком
 void RecordWithDecode(const HWND hWnd, const int IDControl);
 
+void playAudioFromBuffer(const std::string& fileName, sf::Sound& sound);
+
 // Фукнции для работы с изображениями
 void DrawImage(HWND& hWnd, HINSTANCE& hInst, HDC& hdc, int IDB_BITMAP);
 

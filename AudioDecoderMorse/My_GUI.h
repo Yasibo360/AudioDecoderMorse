@@ -30,7 +30,6 @@ struct Pane2
 
 	RECT rectPane2Plot;
 	RECT rectPane2ButtPlay;
-	RECT rectPane2ButtStop;
 	RECT rectPane2ButtReset;
 	RECT rectPane2EditCode;
 	RECT rectPane2EditText;

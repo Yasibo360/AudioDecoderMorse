@@ -190,15 +190,15 @@ std::wstring Morse—ode::peakDurationsToMorse(const std::vector<std::pair<char, f
 	for (const auto& duration : peakDurations) {
 		if (duration.first == 's') {
 			if (std::abs(duration.second - minNumber) <= std::pow(10, precision)) {
-				morseCode += L".";
+				morseCode += _dot;
 			}
 			else if (std::abs(duration.second - minNumber * 3) <= std::pow(10, precision)) {
-				morseCode += L"-";
+				morseCode += _dash;
 			}
 		}
 		else if (duration.first == 'p') {
 			if (std::abs(duration.second - maxPause) <= std::pow(10, precision + 1)) {
-				morseCode += L" ";
+				morseCode += _sepSymb;
 			}
 		}
 	}
