@@ -43,6 +43,8 @@ void DrawPane4(HWND& hWnd, HINSTANCE& hInst, HDC& hdc);
 
 void DrawPlot(HWND& hWnd, sf::Texture& texture);
 
+void processPlotData(const std::string& fileName, const std::string& curveName, const int typeLine, const sf::Color& color, HWND hWnd, int controlID, Plot_AmpTime& plot);
+
 void createPopupMenuPlot(HWND hWnd, POINT pt);
 
 // Фукнции для работы с файлом

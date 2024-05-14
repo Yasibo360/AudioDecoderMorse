@@ -36,5 +36,11 @@ class Plot_AmpTime
 
         void graphAmplitudeFromTime(sf::Plot::Curve& curve, const std::vector<float>& time, const std::vector<float>& samples, const sf::Vector2f& graphSize);
 
-        void graphHorizontalLine(sf::Plot::Curve& curve, const std::vector<float>& time, const std::vector<float>& samples, const sf::Vector2f& graphSize);
+        void graphThresholdLine(sf::Plot::Curve& curve, const std::vector<float>& time, const std::vector<float>& samples, const sf::Vector2f& graphSize);
+       
+        void graphMeanLine(sf::Plot::Curve& curve, const std::vector<float>& time, const std::vector<float>& samples, const sf::Vector2f& graphSize);
+       
+        void graphMeanPosLine(sf::Plot::Curve& curve, const std::vector<float>& time, const std::vector<float>& samples, const sf::Vector2f& graphSize);
+        
+        void graphMeanNegLine(sf::Plot::Curve& curve, const std::vector<float>& time, const std::vector<float>& samples, const sf::Vector2f& graphSize);
 };

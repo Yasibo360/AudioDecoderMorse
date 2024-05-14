@@ -72,7 +72,7 @@ void Plot_AmpTime::graphAmplitudeFromTime(sf::Plot::Curve& curve, const std::vec
     return;
 }
 
-void Plot_AmpTime::graphHorizontalLine(sf::Plot::Curve& curve, const std::vector<float>& time, const std::vector<float>& samples, const sf::Vector2f& graphSize) {
+void Plot_AmpTime::graphThresholdLine(sf::Plot::Curve& curve, const std::vector<float>& time, const std::vector<float>& samples, const sf::Vector2f& graphSize) {
     float x = 0.0f;
     float y = 0.0f;
 
@@ -81,8 +81,7 @@ void Plot_AmpTime::graphHorizontalLine(sf::Plot::Curve& curve, const std::vector
     float minTime = *std::min_element(time.begin(), time.end());
     float maxTime = *std::max_element(time.begin(), time.end());
 
-    float max_sample = *std::max_element(samples.begin(), samples.end());
-    float tresh = max_sample * 0.5;
+    float tresh = maxSample * 0.5;
 
     for (std::size_t i = 0; i < samples.size(); ++i) {
         x = (time[i] - minTime) / (maxTime - minTime) * graphSize.x;
@@ -91,6 +90,109 @@ void Plot_AmpTime::graphHorizontalLine(sf::Plot::Curve& curve, const std::vector
         float k = N / (maxSample - minSample + 2 * N) * graphSize.y;
 
         y = graphSize.y - (tresh - minSample) / (maxSample - minSample) * (graphSize.y - 2 * k) - k / 2;
+
+        curve.addVertex(sf::Vector2f(x, y));
+    }
+
+    return;
+}
+
+void Plot_AmpTime::graphMeanLine(sf::Plot::Curve& curve, const std::vector<float>& time, const std::vector<float>& samples, const sf::Vector2f& graphSize) {
+    float x = 0.0f;
+    float y = 0.0f;
+
+    float minSample = *std::min_element(samples.begin(), samples.end());
+    float maxSample = *std::max_element(samples.begin(), samples.end());
+    float minTime = *std::min_element(time.begin(), time.end());
+    float maxTime = *std::max_element(time.begin(), time.end());
+
+    float meanValue = std::abs(std::abs(maxSample) - std::abs(minSample)) / 2;
+
+    for (std::size_t i = 0; i < samples.size(); ++i) {
+        x = (time[i] - minTime) / (maxTime - minTime) * graphSize.x;
+
+        float N = std::abs(std::abs(maxSample) - std::abs(minSample));
+        float k = N / (maxSample - minSample + 2 * N) * graphSize.y;
+
+        y = graphSize.y - (meanValue - minSample) / (maxSample - minSample) * (graphSize.y - 2 * k) - k / 2;
+
+        curve.addVertex(sf::Vector2f(x, y));
+    }
+
+    return;
+}
+
+void Plot_AmpTime::graphMeanPosLine(sf::Plot::Curve& curve, const std::vector<float>& time, const std::vector<float>& samples, const sf::Vector2f& graphSize)
+{
+    float x = 0.0f;
+    float y = 0.0f;
+
+    float minSample = *std::min_element(samples.begin(), samples.end());
+    float maxSample = *std::max_element(samples.begin(), samples.end());
+    float minTime = *std::min_element(time.begin(), time.end());
+    float maxTime = *std::max_element(time.begin(), time.end());
+
+    float sum = 0.0;
+    int count = 0;
+
+    // Проходим по всем отсчетам аудиофайла в одном цикле
+    for (float sample : samples) {
+        // Суммируем положительные отсчеты для вычисления среднего
+        if (sample > 0) {
+            sum += sample;
+            count++;
+        }
+    }
+
+    // Вычисляем среднее значение
+    float meanValue = (count > 0) ? (sum / count) : 0.0;
+
+    for (std::size_t i = 0; i < samples.size(); ++i) {
+        x = (time[i] - minTime) / (maxTime - minTime) * graphSize.x;
+
+        float N = std::abs(std::abs(maxSample) - std::abs(minSample));
+        float k = N / (maxSample - minSample + 2 * N) * graphSize.y;
+
+        y = graphSize.y - (meanValue - minSample) / (maxSample - minSample) * (graphSize.y - 2 * k) - k / 2;
+
+        curve.addVertex(sf::Vector2f(x, y));
+    }
+
+    return;
+}
+
+void Plot_AmpTime::graphMeanNegLine(sf::Plot::Curve& curve, const std::vector<float>& time, const std::vector<float>& samples, const sf::Vector2f& graphSize)
+{
+    float x = 0.0f;
+    float y = 0.0f;
+
+    float minSample = *std::min_element(samples.begin(), samples.end());
+    float maxSample = *std::max_element(samples.begin(), samples.end());
+    float minTime = *std::min_element(time.begin(), time.end());
+    float maxTime = *std::max_element(time.begin(), time.end());
+
+    float sum = 0.0;
+    int count = 0;
+
+    // Проходим по всем отсчетам аудиофайла в одном цикле
+    for (float sample : samples) {
+        // Суммируем положительные отсчеты для вычисления среднего
+        if (sample < 0) {
+            sum += sample;
+            count++;
+        }
+    }
+
+    // Вычисляем среднее значение
+    float meanValue = (count > 0) ? (sum / count) : 0.0;
+
+    for (std::size_t i = 0; i < samples.size(); ++i) {
+        x = (time[i] - minTime) / (maxTime - minTime) * graphSize.x;
+
+        float N = std::abs(std::abs(maxSample) - std::abs(minSample));
+        float k = N / (maxSample - minSample + 2 * N) * graphSize.y;
+
+        y = graphSize.y - (meanValue - minSample) / (maxSample - minSample) * (graphSize.y - 2 * k) - k / 2;
 
         curve.addVertex(sf::Vector2f(x, y));
     }

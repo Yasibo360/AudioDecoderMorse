@@ -163,6 +163,37 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					plot.addCurve("Right channel", boundFunction, time, samplesByChannel[0]);
 					plot.addWidePeaks(widePeaks, timeStart, timeEnd);
 
+					std::wstring morseCode;
+					std::wstring morseChar;
+					std::vector<std::pair<char, float>> peakDurations;
+
+					peakDurations = morse.findPeakDurations(widePeaks, 2);
+					morseCode = morse.peakDurationsToMorse(peakDurations);
+					morseChar = morse.morseToChar(morseCode);
+
+					SetWindowTextW(GetDlgItem(hWnd, IDPane2EditCode), L"");
+					SetWindowTextW(GetDlgItem(hWnd, IDPane2EditText), L"");
+
+					WCHAR buffer[MAX_EDITSTRING];
+					if (morseCode.length() != 0)
+					{
+						for (size_t i = 0; i < morseCode.length(); i++)
+						{
+							buffer[i] = morseCode[i];
+						}
+						buffer[morseCode.length()] = '\0';
+						SetWindowTextW(GetDlgItem(hWnd, IDPane2EditCode), buffer);
+					}
+					if (morseChar.length() != 0)
+					{
+						for (size_t i = 0; i < morseChar.length(); i++)
+						{
+							buffer[i] = morseChar[i];
+						}
+						buffer[morseChar.length()] = '\0';
+						SetWindowTextW(GetDlgItem(hWnd, IDPane2EditText), buffer);
+					}
+
 					// Создаем экземпляр sf::RenderWindow с контекстом устройства окна
 					sf::RenderWindow window(GetDlgItem(hWnd, IDPane2Plot));
 
@@ -183,58 +214,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 			case IDMenuItem2:
 			{
-				if (plot.getCurveCount() != 0 && plot.haveCurve("Threshold") == false)
-				{
-					SndfileHandle file(fileName);
-
-					if (file.error() != 0) {
-						OutputDebugString(L"Ошибка при открытии файла: ");
-						OutputDebugString(std::to_wstring(sf_error(file.rawHandle())).c_str());
-					}
-
-					std::vector<std::vector<float>> samplesByChannel;
-					sf_count_t frames_t;
-					frames_t = readAudioData(file, samplesByChannel);
-
-					if (frames_t != 0) {
-						// Вычисляем время для каждого отсчета
-						float samplerate = file.samplerate();
-						float frames = frames_t / file.channels();
-						std::vector<float> time(frames);
-
-						for (int i = 0; i < frames; i++) {
-							time[i] = i / samplerate;
-						}
-
-						sf::Color color = sf::Color::Red;
-						auto boundFunction = std::bind(&Plot_AmpTime::graphHorizontalLine, &plot, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
-						plot.addCurve("Threshold", boundFunction, time, samplesByChannel[0], color, 2);
-
-						// Создаем экземпляр sf::RenderWindow с контекстом устройства окна
-						sf::RenderWindow window(GetDlgItem(hWnd, IDPane2Plot));
-
-						// Рисуем график
-						window.draw(plot);
-
-						// Отображаем изменения
-						window.display();
-					}			
-				}
+				processPlotData(fileName, "Threshold value", 0, sf::Color::Red, hWnd, IDPane2Plot, plot);
 			}
 			break;
 			case IDMenuItem3:
 			{
-				
+				processPlotData(fileName, "Mean value", 1, sf::Color(255, 140, 0, 255), hWnd, IDPane2Plot, plot);
 			}
-			break;
+			break;			
 			case IDMenuItem4:
 			{
-
+				processPlotData(fileName, "Mean positive value", 2, sf::Color(255, 215, 0, 255), hWnd, IDPane2Plot, plot);
 			}
 			break;
 			case IDMenuItem5:
 			{
-
+				processPlotData(fileName, "Mean negative value", 3, sf::Color(255, 215, 0, 255), hWnd, IDPane2Plot, plot);
 			}
 			break;
 			default:

@@ -513,19 +513,19 @@ void InitControlsRect(RECT rc)
 	// Инициализация размеров контролов для страницы редактирования
 	gui.pane2.rectPane2ButtPlay = {
 		gui.rectPage.right / 2 - gui.sizeButton.cx / 2,
-		gui.rectPage.top + 8 * gui.sizeIndentation.cy,
+		gui.rectPage.top + 2 * gui.sizeIndentation.cy,
 		gui.sizeButton.cx,
 		gui.sizeButton.cy,
 	};
 	gui.pane2.rectPane2ButtStop = {
 		gui.rectPage.right / 2 - gui.sizeButton.cx - gui.sizeButton.cx / 2 - gui.sizeIndentation.cx,
-		gui.rectPage.top + 8 * gui.sizeIndentation.cy,
+		gui.rectPage.top + 2 * gui.sizeIndentation.cy,
 		gui.sizeButton.cx,
 		gui.sizeButton.cy,
 	};
 	gui.pane2.rectPane2ButtReset = {
 		gui.rectPage.right / 2 + gui.sizeButton.cx / 2 + gui.sizeIndentation.cx,
-		gui.rectPage.top + 8 * gui.sizeIndentation.cy,
+		gui.rectPage.top + 2 * gui.sizeIndentation.cy,
 		gui.sizeButton.cx,
 		gui.sizeButton.cy,
 	};
@@ -535,19 +535,19 @@ void InitControlsRect(RECT rc)
 		gui.rectPage.right - 2 * gui.sizeIndentation.cx,
 		gui.rectPage.bottom / 2 + 6 * gui.sizeIndentation.cy
 	};
-	gui.pane2.rectPane2EditText = {
+	gui.pane2.rectPane2EditCode = {
 		gui.pane2.rectPane2Plot.left,
 		gui.pane2.rectPane2Plot.top + gui.pane2.rectPane2Plot.bottom + 4 * gui.sizeIndentation.cx,
 		gui.pane2.rectPane2Plot.right / 2 - gui.sizeIndentation.cx,
 		gui.rectPage.bottom - (gui.pane2.rectPane2Plot.top + gui.pane2.rectPane2Plot.bottom + 4 * gui.sizeIndentation.cx) - gui.sizeIndentation.cy
 	};
-	gui.pane2.rectPane2EditCode = {
+	gui.pane2.rectPane2EditText = {
 		gui.pane2.rectPane2Plot.right / 2 + gui.sizeIndentation.cx,
 		gui.pane2.rectPane2Plot.top + gui.pane2.rectPane2Plot.bottom + 4 * gui.sizeIndentation.cx,
 		gui.pane2.rectPane2Plot.right / 2,
 		gui.rectPage.bottom - (gui.pane2.rectPane2Plot.top + gui.pane2.rectPane2Plot.bottom + 4 * gui.sizeIndentation.cx) - gui.sizeIndentation.cy
 	};
-
+	
 	// Инициализация размеров контролов для страницы переводчика
 	gui.pane3.rectPane3EditText =
 	{
@@ -841,7 +841,7 @@ void DrawPane4(HWND& hWnd, HINSTANCE& hInst, HDC& hdc)
 
 void DrawPlot(HWND& hWnd, sf::Texture& texture)
 {
-	if (texture.getSize().x != 0 || texture.getSize().y != 0) {		
+	if (texture.getSize().x != 0 || texture.getSize().y != 0) {
 		// Создаем экземпляр sf::RenderWindow с контекстом устройства окна
 		sf::RenderWindow window(GetDlgItem(hWnd, IDPane2Plot));
 
@@ -858,6 +858,66 @@ void DrawPlot(HWND& hWnd, sf::Texture& texture)
 	}
 }
 
+void processPlotData(const std::string& fileName, const std::string& curveName, const int typeLine, const sf::Color& color, HWND hWnd, int controlID, Plot_AmpTime& plot)
+{
+    if (plot.getCurveCount() != 0 && plot.haveCurve(curveName.c_str()) == false)
+    {
+        SndfileHandle file(fileName);
+
+        if (file.error() != 0) {
+            OutputDebugString(L"Ошибка при открытии файла: ");
+            OutputDebugString(std::to_wstring(sf_error(file.rawHandle())).c_str());
+        }
+
+        std::vector<std::vector<float>> samplesByChannel;
+        sf_count_t frames_t;
+        frames_t = readAudioData(file, samplesByChannel);
+
+        if (frames_t != 0) {
+            float samplerate = file.samplerate();
+            float frames = frames_t / file.channels();
+            std::vector<float> time(frames);
+
+            for (int i = 0; i < frames; i++) {
+                time[i] = i / samplerate;
+            }
+
+			auto boundFunction = std::bind(&Plot_AmpTime::graphThresholdLine, &plot, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
+			switch (typeLine)
+			{
+			case 0:
+			{
+				boundFunction = std::bind(&Plot_AmpTime::graphThresholdLine, &plot, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
+			}
+			break;
+			case 1:
+			{
+				boundFunction = std::bind(&Plot_AmpTime::graphMeanLine, &plot, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
+			}
+			break;
+			case 2:
+			{
+				boundFunction = std::bind(&Plot_AmpTime::graphMeanPosLine, &plot, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
+			}
+			break;
+			case 3:
+			{
+				boundFunction = std::bind(&Plot_AmpTime::graphMeanNegLine, &plot, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
+			}
+			break;
+			default:
+				break;
+			}
+
+            plot.addCurve(curveName.c_str(), boundFunction, time, samplesByChannel[0], color, 2);
+
+            sf::RenderWindow window(GetDlgItem(hWnd, controlID));
+            window.draw(plot);
+            window.display();
+        }
+    }
+}
+
 void createPopupMenuPlot(HWND hWnd, POINT pt)
 {
 	HMENU hSubMenu = CreatePopupMenu();
@@ -869,7 +929,7 @@ void createPopupMenuPlot(HWND hWnd, POINT pt)
 	AppendMenu(hContextMenu, MF_STRING, IDMenuItem1, L"Открыть файл");
 	AppendMenu(hContextMenu, MF_STRING | MF_UNCHECKED, IDMenuItem2, L"Пороговое значение");
 	InsertMenu(hContextMenu, -1, MF_BYPOSITION | MF_POPUP, (UINT_PTR)hSubMenu, L"Среднее значение");
-	TrackPopupMenu(hContextMenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON , pt.x, pt.y, 0, hWnd, NULL);
+	TrackPopupMenu(hContextMenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON, pt.x, pt.y, 0, hWnd, NULL);
 
 }
 
@@ -963,7 +1023,7 @@ void RecordWithDecode(const HWND hWnd, const int IDControl)
 		std::vector<std::pair<float, float>> widePeaks;
 		std::vector<std::pair<char, float>> peakDurations;
 
-		widePeaks = morse.findWidePeaksInAudioFile("recorded.wav");	
+		widePeaks = morse.findWidePeaksInAudioFile("recorded.wav");
 		peakDurations = morse.findPeakDurations(widePeaks, 2);
 		morseCode = morse.peakDurationsToMorse(peakDurations);
 		morseChar = morse.morseToChar(morseCode);
@@ -974,9 +1034,9 @@ void RecordWithDecode(const HWND hWnd, const int IDControl)
 			for (size_t i = 0; i < morseChar.length(); i++)
 			{
 				buffer[i] = morseChar[i];
-				buffer[i + 1] = '\0';
 			}
-			SetWindowTextW(GetDlgItem(hWndPane1, IDControl), buffer);
+			buffer[morseChar.length()] = '\0';
+			SetWindowTextW(GetDlgItem(hWnd, IDControl), buffer);
 		}
 		else
 		{
