@@ -6,16 +6,19 @@ _dotDuration(100), _dashDuration(3 * _dotDuration), _pauseDuration(_dotDuration)
 _wordPauseDuration(7 * _dotDuration)
 {
 	// Загрузка стандартных словарей
+	loadDictionaryFromFile("./Dictionaries/Dictionary Ru.txt");
+	loadDictionaryFromFile("./Dictionaries/Dictionary En.txt");
 	loadDictionaryFromFile("./Dictionaries/Dictionary Numeric.txt");
 	loadDictionaryFromFile("./Dictionaries/Dictionary Service Symbols.txt");
-	loadDictionaryFromFile("./Dictionaries/Dictionary En.txt");
-	loadDictionaryFromFile("./Dictionaries/Dictionary Ru.txt");
 
 	// Если словарей не найдено, программа не сможет работать
 	if (_dictionaries.empty())
 	{
 		throw "Error: dictionaries not loaded";
 	}
+
+	setActiveDictionary(_dictionaries.begin()->first);
+
 	return;
 };
 
@@ -27,7 +30,21 @@ void MorseСode::setDurations(int dot, int dash, int letterPause, int wordPause)
 	_dashDuration = dash;
 	_pauseDuration = letterPause;
 	_wordPauseDuration = wordPause;
-};
+}
+void MorseСode::setActiveDictionary(std::wstring dictionaryName)
+{
+	std::map<wchar_t, std::wstring> combinedDictionary;
+	for (const auto& dict : _dictionaries)
+	{
+		if (dict.first == dictionaryName || dict.first == L"Цифры" || dict.first == L"Пунктуация") {
+			for (const auto& entry : dict.second)
+			{
+				combinedDictionary[entry.first] = entry.second;
+			}
+		}	
+	}
+	_activeDictionary = combinedDictionary;
+}
 
 bool MorseСode::loadDictionaryFromFile(const std::string& filename)
 {
@@ -79,49 +96,58 @@ std::wstring MorseСode::charToMorse(std::wstring str)
 	std::wstring morseCode{};
 
 	// Проверяем каждую букву во всех словарях
+	//for (size_t i = 0; i < str.length(); i++)
+	//{
+	//	str[i] = std::towupper(str[i]);
+	//	for (const auto& dictionary : _dictionaries) {
+	//		if (dictionary.second.find(str[i]) != dictionary.second.end())
+	//		{
+	//			morseCode += dictionary.second.find(str[i])->second + _sepSymb;
+	//			break;
+	//		}
+
+	//		if (str[i] == wchar_t(" "[0]))
+	//		{
+	//			morseCode += _sepWord;
+	//			break;
+	//		}
+	//	}
+	//}
+
+
 	for (size_t i = 0; i < str.length(); i++)
 	{
 		str[i] = std::towupper(str[i]);
-		for (const auto& dictionary : _dictionaries) {
-			if (dictionary.second.find(str[i]) != dictionary.second.end())
-			{
-				morseCode += dictionary.second.find(str[i])->second + _sepSymb;
-				break;
-			}
+		if (_activeDictionary.find(str[i]) != _activeDictionary.end())
+		{
+			morseCode += _activeDictionary.find(str[i])->second + _sepSymb;
+		}
 
-			/*if (Dictionary.second.begin()->first <= str[i] && str[i] <= Dictionary.second.rbegin()->first)
-			{
-				morseCode += Dictionary.second.find(str[i])->second + MorseСode::sepSymb;
-				break;
-			}*/
-			if (str[i] == wchar_t(" "[0]))
-			{
-				morseCode += _sepWord;
-				break;
-			}
+		if (str[i] == wchar_t(" "[0]))
+		{
+			morseCode += _sepWord;
 		}
 	}
-	//if (morseCode.empty()) throw L"Не найдено совпадений";
 
 	return morseCode;
 };
 
 std::wstring MorseСode::morseToChar(std::wstring str)
 {
-    std::wstring userStr;
-    std::vector<std::wstring> words = Split(str, _sepWord);
-    std::vector<std::wstring> symbols;
-    bool flag = false;
+	std::wstring userStr;
+	std::vector<std::wstring> words = Split(str, _sepWord);
+	std::vector<std::wstring> symbols;
+	bool flag = false;
 
-    for (std::wstring word : words)
-    {
-        symbols = Split(word, _sepSymb);
+	for (size_t i = 0; i < words.size(); i++)
+	{
+		symbols = Split(words[i], _sepSymb);
 
-        for (std::wstring symbol : symbols)
-        {
-            for (const auto& dictEntry : _dictionaries)
-            {
-                const std::map<wchar_t, std::wstring>& currentDictionary = dictEntry.second;
+		for (std::wstring symbol : symbols)
+		{
+			/*for (const auto& dictEntry : _dictionaries)
+			{
+				const std::map<wchar_t, std::wstring>& currentDictionary = dictEntry.second;
 
 				for (const auto& it : currentDictionary)
 				{
@@ -132,30 +158,30 @@ std::wstring MorseСode::morseToChar(std::wstring str)
 						break;
 					}
 				}
-            }
+			}*/
 
-            // Обработка неопознанных символов по текущему словарю
-            if (!flag)
-            {
-                userStr += L"#";
-            }
-        }
-        userStr += _sepWord;
-    }
-    return userStr;
-}
 
-std::map<wchar_t, std::wstring> MorseСode::getAllDictionariesCombined()
-{
-    std::map<wchar_t, std::wstring> combinedDictionary;
-    for (const auto& dict : _dictionaries)
-    {
-        for (const auto& entry : dict.second)
-        {
-            combinedDictionary[entry.first] = entry.second;
-        }
-    }
-    return combinedDictionary;
+
+			for (const auto& it : _activeDictionary)
+			{
+				if (it.second == symbol)
+				{
+					userStr += it.first;
+					flag = true;
+				}
+			}
+
+			// Обработка неопознанных символов по текущему словарю
+			if (!flag)
+			{
+				userStr += L"#";
+			}
+		}
+		if (i != words.size() - 1) {
+			userStr += _sepWord;
+		}
+	}
+	return userStr;
 }
 
 std::vector<std::wstring> MorseСode::getAllDictionariesName()
@@ -170,35 +196,60 @@ std::vector<std::wstring> MorseСode::getAllDictionariesName()
 	return dictionariesName;
 }
 
+std::map<wchar_t, std::wstring> MorseСode::getAllDictionariesCombined(std::wstring alphabetName)
+{
+	std::map<wchar_t, std::wstring> combinedDictionary;
+	for (const auto& dict : _dictionaries)
+	{
+		if (dict.first == alphabetName) {
+			for (const auto& entry : dict.second)
+			{
+				combinedDictionary[entry.first] = entry.second;
+			}
+		}
+	}
+
+	return combinedDictionary;
+}
+
 std::wstring MorseСode::peakDurationsToMorse(const std::vector<std::pair<char, float>>& peakDurations, float precision)
 {
 	std::wstring morseCode;
 
-	float minNumber = std::numeric_limits<float>::infinity();
-	float maxPause = -std::numeric_limits<float>::infinity();
+	float dotDur = std::numeric_limits<float>::infinity();
+	float pauseMorseDur = std::numeric_limits<float>::infinity();
+	float pauseWordDur = -std::numeric_limits<float>::infinity();
 
 	// Поиск минимального значения символов и максимальной паузы
 	for (const auto& duration : peakDurations) {
 		if (duration.first == 's') {
-			minNumber = std::min(minNumber, duration.second);
+			dotDur = std::min(dotDur, duration.second);
 		}
 		if (duration.first == 'p') {
-			maxPause = std::max(maxPause, duration.second);
+			pauseWordDur = std::max(pauseWordDur, duration.second);
+			pauseMorseDur = std::min(pauseMorseDur, duration.second);
 		}
+	}
+
+	if (not (std::abs(pauseWordDur - pauseMorseDur * 7) <= std::pow(1.3, precision))) {
+		pauseWordDur = 0;
 	}
 
 	for (const auto& duration : peakDurations) {
 		if (duration.first == 's') {
-			if (std::abs(duration.second - minNumber) <= std::pow(10, precision)) {
+			if (std::abs(duration.second - dotDur) <= std::pow(4, precision)) {
 				morseCode += _dot;
 			}
-			else if (std::abs(duration.second - minNumber * 3) <= std::pow(10, precision)) {
+			else if (std::abs(duration.second - dotDur * 3) <= std::pow(4, precision)) {
 				morseCode += _dash;
 			}
 		}
 		else if (duration.first == 'p') {
-			if (std::abs(duration.second - maxPause) <= std::pow(10, precision + 1)) {
+			if (std::abs(duration.second - pauseMorseDur * 3) <= std::pow(3.4, precision)) {
 				morseCode += _sepSymb;
+			}
+			else if (std::abs(duration.second - pauseWordDur) <= std::pow(4, precision) && pauseWordDur != 0) {
+				morseCode += _sepWord;
 			}
 		}
 	}
@@ -260,7 +311,7 @@ std::vector<std::pair<float, float>> MorseСode::findWidePeaks(std::vector<float>
 
 	for (int i = 0; i < peaks.size() - 1; ++i) {
 		if (time[peaks[i]] >= timeStart && time[peaks[i]] <= timeEnd) {
-			if (time[peaks[i + 1]] - time[peaks[i]] <= 200 * period) {
+			if (time[peaks[i + 1]] - time[peaks[i]] <= 350 * period) {
 				if (peak_ranges.empty()) {
 					peak_ranges.emplace_back(time[peaks[i]], time[peaks[i + 1]]);
 				}
@@ -342,4 +393,4 @@ void MorseСode::playMorseCode(std::wstring& morseCode)
 		Sleep(_wordPauseDuration);
 	}
 	return;
-};
+}

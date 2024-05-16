@@ -1,8 +1,8 @@
 #pragma once
 
-#include <map>
 #include <vector>
 #include <string>
+#include <map>
 #include <fstream>
 #include <iostream>
 #include <codecvt>
@@ -35,15 +35,17 @@ public:
 
 	void setDurations(int dot, int dash, int wordPause, int letterPause);
 
+	void setActiveDictionary(std::wstring);
+
 	bool loadDictionaryFromFile(const std::string& filename);
 
 	std::wstring charToMorse(std::wstring str);
 
 	std::wstring morseToChar(std::wstring str);
 
-	std::map<wchar_t, std::wstring> getAllDictionariesCombined();
-
 	std::vector<std::wstring> getAllDictionariesName();
+
+	std::map<wchar_t, std::wstring> getAllDictionariesCombined(std::wstring alphabetName);
 
 	std::wstring peakDurationsToMorse(const std::vector<std::pair<char, float>>& peakDurations, float precision = -2);
 
@@ -57,4 +59,5 @@ public:
 	float getThreshold() const;
 
 	void playMorseCode(std::wstring& morseCode);
+
 };

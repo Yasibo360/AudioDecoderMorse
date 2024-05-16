@@ -6,6 +6,7 @@
 
 #include <thread>
 #include <future>
+#include <cmath>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp >
 #include "Resource.h"

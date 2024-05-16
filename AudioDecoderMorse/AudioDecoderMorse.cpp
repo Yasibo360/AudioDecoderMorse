@@ -78,6 +78,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		switch HIWORD(wParam)
 		{
+		case LBN_SELCHANGE:
+		{
+			// Получаем выбранный элемент списка
+			int selectedIndex = SendMessageW(GetDlgItem(hWnd, IDPane3ListDict), LB_GETCURSEL, 0, 0);
+
+			WCHAR buffer[MAX_PATH]; // Буфер для хранения строки
+			SendMessageW(GetDlgItem(hWnd, IDPane3ListDict), LB_GETTEXT, selectedIndex, (LPARAM)buffer);
+
+			// Проверяем, соответствует ли выбранный элемент вашему условию
+			if (selectedIndex == 2 || selectedIndex == 3)
+			{
+				// Отменяем выбор элемента
+				SendMessageW(GetDlgItem(hWnd, IDPane3ListDict), LB_SETCURSEL, -1, 0);
+			}
+			else
+			{
+				morse.setActiveDictionary(buffer);
+				ChangeEditText(hWnd);
+			}			
+		}
 		case BN_CLICKED:
 		{
 			switch (LOWORD(wParam))
@@ -270,7 +290,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				if (SendMessageW(GetDlgItem(hWnd, IDPane3EditCode), EM_LINELENGTH, 0, 0) < SendMessageW(GetDlgItem(hWnd, IDPane3EditCode), EM_GETLIMITTEXT, 0, 0))
 				{
-
+					ChangeEditCode(hWnd);
 				}
 			}
 			break;
@@ -495,7 +515,7 @@ LRESULT CALLBACK ButtonProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 		// Перерисовываем кнопку
 		InvalidateRect(hWnd, nullptr, FALSE);
 
-		RecordWithDecode(hWnd, IDPane1EditRes);
+		RecordWithDecode(hWndPane1, IDPane1EditRes);
 	}
 	break;
 	case WM_DESTROY:

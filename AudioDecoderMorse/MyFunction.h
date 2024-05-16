@@ -67,6 +67,8 @@ void PlayCodeMorse(HWND& hWnd);
 
 void ChangeEditText(HWND& hWnd);
 
+void ChangeEditCode(HWND& hWnd);
+
 std::vector<std::wstring> Split(const std::wstring& src, const std::wstring& delim);
 
 void CopyIntoBuffer(const HWND hWnd, const int IDControl);

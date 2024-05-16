@@ -325,7 +325,7 @@ void InitializeUI(HWND hWnd)
 	CreateWindowW(
 		L"EDIT",
 		L"",
-		WS_TABSTOP | WS_GROUP | WS_VISIBLE | WS_CHILD | ES_MULTILINE | WS_BORDER,
+		WS_TABSTOP | WS_GROUP | WS_VISIBLE | WS_CHILD | ES_MULTILINE | WS_BORDER | ES_READONLY,
 		gui.pane2.rectPane2EditCode.left,
 		gui.pane2.rectPane2EditCode.top,
 		gui.pane2.rectPane2EditCode.right,
@@ -339,7 +339,7 @@ void InitializeUI(HWND hWnd)
 	CreateWindowW(
 		L"EDIT",
 		L"",
-		WS_TABSTOP | WS_GROUP | WS_VISIBLE | WS_CHILD | ES_MULTILINE | WS_BORDER,
+		WS_TABSTOP | WS_GROUP | WS_VISIBLE | WS_CHILD | ES_MULTILINE | WS_BORDER | ES_READONLY,
 		gui.pane2.rectPane2EditText.left,
 		gui.pane2.rectPane2EditText.top,
 		gui.pane2.rectPane2EditText.right,
@@ -421,7 +421,7 @@ void InitializeUI(HWND hWnd)
 	CreateWindow(
 		L"LISTBOX",
 		L"Выпадающий список",
-		WS_CHILD | WS_VISIBLE | LBS_STANDARD | LBS_NOSEL,
+		WS_CHILD | WS_VISIBLE | LBS_STANDARD,
 		gui.pane3.rectPane3ListDict.left,
 		gui.pane3.rectPane3ListDict.top,
 		gui.pane3.rectPane3ListDict.right,
@@ -437,6 +437,8 @@ void InitializeUI(HWND hWnd)
 	{
 		SendMessageW(GetDlgItem(GetDlgItem(hWnd, IDPane3), IDPane3ListDict), LB_ADDSTRING, 0, (LPARAM)name.c_str());
 	}
+
+	SendMessageW(GetDlgItem(GetDlgItem(hWnd, IDPane3), IDPane3ListDict), LB_SETCURSEL, 0, 0);
 
 	CreateWindow(
 		L"BUTTON",
@@ -969,64 +971,63 @@ std::string openFileDialog()
 
 void RecordWithDecode(const HWND hWnd, const int IDControl)
 {
-	//if (!recorder.IsRecording()) {
-	//	recorder.StartRecording();
-	//}
-	//else {
-	//	recorder.StopRecording();
+	if (!recorder.IsRecording()) {
+		recorder.StartRecording();
+	}
+	else {
+		recorder.StopRecording();
 
-	//	std::wstring morseCode;
-	//	std::wstring morseChar;
-	//	std::vector<std::pair<float, float>> widePeaks;
-	//	std::vector<std::pair<char, float>> peakDurations;
+		std::wstring morseCode;
+		std::wstring morseChar;
+		std::vector<std::pair<float, float>> widePeaks;
+		std::vector<std::pair<char, float>> peakDurations;
 
-	//	widePeaks = morse.findWidePeaksInAudioFile("recorded.wav");
-	//	peakDurations = morse.findPeakDurations(widePeaks, 2);
-	//	morseCode = morse.peakDurationsToMorse(peakDurations);
-	//	morseChar = morse.morseToChar(morseCode);
+		widePeaks = morse.findWidePeaksInAudioFile("recorded.wav");
+		peakDurations = morse.findPeakDurations(widePeaks, 2);
+		morseCode = morse.peakDurationsToMorse(peakDurations);
+		morseChar = morse.morseToChar(morseCode);
 
-	//	WCHAR buffer[MAX_EDITSTRING];
-	//	if (morseChar.length() != 0)
-	//	{
-	//		for (size_t i = 0; i < morseChar.length(); i++)
-	//		{
-	//			buffer[i] = morseChar[i];
-	//		}
-	//		buffer[morseChar.length()] = '\0';
-	//		SetWindowTextW(GetDlgItem(hWnd, IDControl), buffer);
-	//	}
-	//	else
-	//	{
-	//		SetWindowTextW(GetDlgItem(hWnd, IDControl), 0);
-	//	}
-	//}
-
-
-
-	std::wstring morseCode;
-	std::wstring morseChar;
-	std::vector<std::pair<float, float>> widePeaks;
-	std::vector<std::pair<char, float>> peakDurations;
-
-	widePeaks = morse.findWidePeaksInAudioFile("recorded.wav");
-	peakDurations = morse.findPeakDurations(widePeaks, 2);
-	morseCode = morse.peakDurationsToMorse(peakDurations);
-	morseChar = morse.morseToChar(morseCode);
-
-	WCHAR buffer[MAX_EDITSTRING];
-	if (morseChar.length() != 0)
-	{
-		for (size_t i = 0; i < morseChar.length(); i++)
+		WCHAR buffer[MAX_EDITSTRING];
+		if (morseChar.length() != 0)
 		{
-			buffer[i] = morseChar[i];
+			for (size_t i = 0; i < morseChar.length(); i++)
+			{
+				buffer[i] = morseChar[i];
+			}
+			buffer[morseChar.length()] = '\0';
+			SetWindowTextW(GetDlgItem(hWnd, IDControl), buffer);
 		}
-		buffer[morseChar.length()] = '\0';
-		SetWindowTextW(GetDlgItem(hWnd, IDControl), buffer);
+		else
+		{
+			SetWindowTextW(GetDlgItem(hWnd, IDControl), 0);
+		}
 	}
-	else
-	{
-		SetWindowTextW(GetDlgItem(hWnd, IDControl), 0);
-	}
+
+
+	//std::wstring morseCode;
+	//std::wstring morseChar;
+	//std::vector<std::pair<float, float>> widePeaks;
+	//std::vector<std::pair<char, float>> peakDurations;
+
+	//widePeaks = morse.findWidePeaksInAudioFile("recorded.wav");
+	//peakDurations = morse.findPeakDurations(widePeaks, 2);
+	//morseCode = morse.peakDurationsToMorse(peakDurations);
+	//morseChar = morse.morseToChar(morseCode);
+
+	//WCHAR buffer[MAX_EDITSTRING];
+	//if (morseChar.length() != 0)
+	//{
+	//	for (size_t i = 0; i < morseChar.length(); i++)
+	//	{
+	//		buffer[i] = morseChar[i];
+	//	}
+	//	buffer[morseChar.length()] = '\0';
+	//	SetWindowTextW(GetDlgItem(hWnd, IDControl), buffer);
+	//}
+	//else
+	//{
+	//	SetWindowTextW(GetDlgItem(hWnd, IDControl), 0);
+	//}
 }
 
 void playAudioFromBuffer(const std::string& fileName, sf::Sound& sound)
@@ -1122,6 +1123,36 @@ void ChangeEditText(HWND& hWnd)
 	else
 	{
 		SetWindowTextW(GetDlgItem(hWnd, IDPane3EditCode), 0);
+	}
+}
+
+void ChangeEditCode(HWND& hWnd)
+{
+	WCHAR buffer[MAX_EDITSTRING];
+	std::wstring morseChar;
+	std::wstring morseCode;
+
+	GetWindowTextW(GetDlgItem(hWnd, IDPane3EditCode), buffer, MAX_EDITSTRING);
+	for (size_t i = 0; (i < sizeof(buffer) / 2 - 1) && (buffer[i] != 0); i++)
+	{
+		morseCode += buffer[i];
+	}
+	morseChar = morse.morseToChar(morseCode);
+	if (morseChar.length() != 0)
+	{
+		for (size_t i = 0; i < morseChar.length() - 1; i++)
+		{
+			buffer[i] = morseChar[i];
+			if (i == morseChar.length() - 2)
+			{
+				buffer[i + 1] = '\0';
+			}
+		}
+		SetWindowTextW(GetDlgItem(hWnd, IDPane3EditText), buffer);
+	}
+	else
+	{
+		SetWindowTextW(GetDlgItem(hWnd, IDPane3EditText), 0);
 	}
 }
 

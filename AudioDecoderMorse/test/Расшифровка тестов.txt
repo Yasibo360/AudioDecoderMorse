@@ -1,0 +1,12 @@
+  Тест	|    Расшифровка   |
+---------------------------|
+ input1 |       SOS	   |
+ input2 |       SOS	   |
+ input3 |       LS2	   |
+ input4 |      KI6GU	   |
+ input5 |      PARIS	   |
+ input6 |   PARIS PARIS	   |
+ input7 |  HELLO, WORLD!   |
+ input8 |    MPEI = МЭИ	   |
+ input9 |  ДУБЛЕННАЯ КОЖА  |
+ input10|    3!YFCNZ$)K;   |
