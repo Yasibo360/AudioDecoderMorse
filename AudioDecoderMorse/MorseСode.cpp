@@ -95,26 +95,6 @@ std::wstring MorseСode::charToMorse(std::wstring str)
 {
 	std::wstring morseCode{};
 
-	// Проверяем каждую букву во всех словарях
-	//for (size_t i = 0; i < str.length(); i++)
-	//{
-	//	str[i] = std::towupper(str[i]);
-	//	for (const auto& dictionary : _dictionaries) {
-	//		if (dictionary.second.find(str[i]) != dictionary.second.end())
-	//		{
-	//			morseCode += dictionary.second.find(str[i])->second + _sepSymb;
-	//			break;
-	//		}
-
-	//		if (str[i] == wchar_t(" "[0]))
-	//		{
-	//			morseCode += _sepWord;
-	//			break;
-	//		}
-	//	}
-	//}
-
-
 	for (size_t i = 0; i < str.length(); i++)
 	{
 		str[i] = std::towupper(str[i]);
@@ -145,23 +125,6 @@ std::wstring MorseСode::morseToChar(std::wstring str)
 
 		for (std::wstring symbol : symbols)
 		{
-			/*for (const auto& dictEntry : _dictionaries)
-			{
-				const std::map<wchar_t, std::wstring>& currentDictionary = dictEntry.second;
-
-				for (const auto& it : currentDictionary)
-				{
-					if (it.second == symbol)
-					{
-						userStr += it.first;
-						flag = true;
-						break;
-					}
-				}
-			}*/
-
-
-
 			for (const auto& it : _activeDictionary)
 			{
 				if (it.second == symbol)
@@ -281,7 +244,7 @@ std::vector<std::pair<float, float>> MorseСode::findWidePeaksInAudioFile(std::st
 	}
 
 	// Вычисляем период сигнала
-	float period = 1.0 / samplerate;
+	float period = 1.0 / samplerate * 350;
 
 	std::vector<std::pair<float, float>> widePeaks;
 	widePeaks = findWidePeaks(samplesByChannels[0], time, period);
@@ -311,7 +274,7 @@ std::vector<std::pair<float, float>> MorseСode::findWidePeaks(std::vector<float>
 
 	for (int i = 0; i < peaks.size() - 1; ++i) {
 		if (time[peaks[i]] >= timeStart && time[peaks[i]] <= timeEnd) {
-			if (time[peaks[i + 1]] - time[peaks[i]] <= 350 * period) {
+			if (time[peaks[i + 1]] - time[peaks[i]] <= period) {
 				if (peak_ranges.empty()) {
 					peak_ranges.emplace_back(time[peaks[i]], time[peaks[i + 1]]);
 				}
@@ -367,6 +330,8 @@ void MorseСode::playMorseCode(std::wstring& morseCode)
 	std::vector<std::wstring> words = Split(morseCode, _sepWord);
 	std::vector<std::wstring> symbols;
 
+	int frequency = 900;
+
 	for (std::wstring word : words)
 	{
 		symbols = Split(word, _sepSymb);
@@ -378,10 +343,10 @@ void MorseСode::playMorseCode(std::wstring& morseCode)
 				switch (symbol[i])
 				{
 				case '.':
-					Beep(900, _dotDuration);
+					Beep(frequency, _dotDuration);
 					break;
 				case '-':
-					Beep(900, _dashDuration);
+					Beep(frequency, _dashDuration*0.8);
 					break;
 				default:
 					break;

@@ -953,7 +953,7 @@ std::string openFileDialog()
 
 	ofn.lStructSize = sizeof(OPENFILENAMEW);
 	ofn.hwndOwner = NULL; // Указывается только в случае использования внутри окна
-	ofn.lpstrFilter = L"All Files\0*.*\0Wave Files\0*.wav\0";
+	ofn.lpstrFilter = L"Wave Files\0*.wav\0All Files\0*.*";
 	ofn.lpstrFile = fileName;
 	ofn.nMaxFile = MAX_PATH;
 	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_EXPLORER;

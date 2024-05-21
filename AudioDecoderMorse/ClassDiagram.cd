@@ -1,0 +1,118 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Comment CommentText="Структура &quot;Settings&quot; является набором полей, которые читаются из файла настроек при инициализации программы.">
+    <Position X="3.5" Y="13.5" Height="0.38" Width="7.335" />
+  </Comment>
+  <Comment CommentText="Данные классы необходимы для реализации функиональных требований к приложению, таких как: работа с кодом Морзе, работа с записывающим устройством, работа с построением графиков.">
+    <Position X="4.431" Y="0.713" Height="0.537" Width="6.201" />
+  </Comment>
+  <Comment CommentText="Структура &quot;My_GUI&quot; содержит в себе набор других структур, необходимых для построения интерфейса пользователя.">
+    <Position X="3.502" Y="9.606" Height="0.38" Width="7.335" />
+  </Comment>
+  <Class Name="sf::Plot::Plot2D">
+    <Position X="6" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAECCIAIQgBQoAQIIAABACAAAAwAAQAmAgBAMIAAI=</HashCode>
+      <FileName>Plot\Plot.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="sf::Plot::Legend">
+    <Position X="13" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAIAAAAAAAAAAIAAAAAAACAgAAAAgAAAABAAAA=</HashCode>
+      <FileName>Plot\Legend.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="sf::Plot::Grid">
+    <Position X="11.25" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgAAAAAIAAkAAAIAAAAAAAAAAAAAAAiAAAIAAAA=</HashCode>
+      <FileName>Plot\Grid.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="sf::Plot::Curve">
+    <Position X="7.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAJAAgAAAIQAAAAIAAAAADAgAgEgAIIAAA=</HashCode>
+      <FileName>Plot\Curve.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="sf::Plot::Axis">
+    <Position X="9.5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAAAQkAABIAAgAAAACAgABAAAABAAIAAAA=</HashCode>
+      <FileName>Plot\Axis.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Plot_AmpTime">
+    <Position X="4.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAGAAAABAgIIgAAIAAAAAAAAABEAAAAIBAEAAABA=</HashCode>
+      <FileName>Plot\Plot_AmpTime.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MorseСode">
+    <Position X="2.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAEAAQIAIIAFEiAAA6ECQAEgAAAAUCAIiAAAEAAgA=</HashCode>
+      <FileName>MorseСode.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AudioRecorder">
+    <Position X="0.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAgABQEAQACKBBBAIIBAIAAEAAJQIAgAAAAAA=</HashCode>
+      <FileName>AudioRecorder.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="Settings">
+    <Position X="6.25" Y="14" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAgAAAAAAAJAgAAAAAggAACAIAAUQAAAIAAAAAAY=</HashCode>
+      <FileName>Settings.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Pane4">
+    <Position X="11.25" Y="10.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAgAAAAAAAAAAAAAAAAAACAAAAAAAAAAA=</HashCode>
+      <FileName>My_GUI.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Pane3">
+    <Position X="9.5" Y="10.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAAAAAAAAAgAAIAAAAAEABAACACEAAAEAAAAAAAAA=</HashCode>
+      <FileName>My_GUI.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Pane2">
+    <Position X="7.75" Y="10.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAgAAAQAAAAgAAAACACAAIAAAAAAAAAAA=</HashCode>
+      <FileName>My_GUI.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Pane1">
+    <Position X="6" Y="10.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAAAAAgAAAAAAAAAAAAEAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>My_GUI.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="My_GUI">
+    <Position X="2.5" Y="10.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAIAAAAIAIBAAAABAAAAAgAAAAAAAEAAAAAAAAAACA=</HashCode>
+      <FileName>My_GUI.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Menu">
+    <Position X="4.25" Y="10.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAACAg=</HashCode>
+      <FileName>My_GUI.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

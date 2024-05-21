@@ -22,7 +22,10 @@ AudioRecorder::AudioRecorder(const std::string& filename, int sampleRate, int ch
 	// Открытие устройства записи звука
 	MMRESULT result = waveInOpen(&_hWaveIn, WAVE_MAPPER, &_waveFormatX, (DWORD_PTR)waveInProc, (DWORD_PTR)this, CALLBACK_FUNCTION);
 	if (result != MMSYSERR_NOERROR) {
-		throw std::runtime_error("Ошибка открытия устройства ввода звука!");
+		//throw std::runtime_error("Ошибка открытия устройства ввода звука!");
+		MessageBox(NULL, L"Не найдено подходящего устройства ввода. \n\
+							Убедитесь, что в вашей системе есть устройства ввода и запустите приложение заново!", L"Ошибка", MB_OK | MB_ICONERROR);
+		exit(0);
 	}
 
 	// Создание мьютекса для синхронизации доступа к очереди
@@ -217,7 +220,7 @@ DWORD WINAPI AudioRecorder::recordingThreadProc(LPVOID lpParam) {
 			audioData = recorder->_audioQueue.front();
 			recorder->_audioQueue.pop();
 
-			// Запись звуковых данных в выходной файл		
+			// Запись звуковых данных в выходной файл
 			SndfileHandle file(
 				recorder->_filename, 
 				SFM_RDWR, // Открываем файл для дозаписи данных
