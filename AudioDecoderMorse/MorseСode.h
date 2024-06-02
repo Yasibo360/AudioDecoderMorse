@@ -74,27 +74,8 @@ public:
 	 */
 	std::wstring peakDurationsToMorse(const std::vector<std::pair<char, float>>& peakDurations, float precision = -2);
 
-	/**
-	 * A description of the entire C++ function.
-	 *
-	 * @param peakDurations description of parameter
-	 * @param precision description of parameter
-	 *
-	 * @return description of return value
-	 *
-	 * @throws ErrorType description of error
-	 */
 	std::vector<std::pair<float, float>> findWidePeaksInAudioFile(std::string filename);
 
-	/**
-	 * Find wide peaks in an audio file.
-	 *
-	 * @param filename the name of the audio file
-	 *
-	 * @return a vector of pairs representing wide peaks in the audio file
-	 *
-	 * @throws None
-	 */
 	std::vector<std::pair<float, float>> findWidePeaks(std::vector<float>& samples, std::vector<float>& time, float period);
 
 	/**
@@ -141,6 +122,6 @@ public:
 	 *
 	 * @throws ErrorType description of error
 	 */
-	void playMorseCode(std::wstring& morseCode);
+	void playMorseCode(std::wstring& morseCode, int frequency = 1000);
 
 };

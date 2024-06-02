@@ -67,7 +67,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 void OnCreate(HWND hWnd)
 {
-	// Вывод окна на середину экрана и установка размерв
+	// Вывод окна на середину экрана и установка размеров
 	MoveWindow(
 		hWnd,
 		GetSystemMetrics(SM_CXSCREEN) / 2 - settings.windowRect.right / 2,
@@ -282,6 +282,26 @@ void InitializeUI(HWND hWnd)
 		hInst,
 		nullptr);
 
+	// Создание нового шрифта
+	HFONT hFont = CreateFont(
+		16,			// Высота шрифта
+		0,			// Ширина шрифта
+		0,			// Угол поворота шрифта
+		0,			// Угол наклона шрифта
+		FW_BOLD,	// Толщина шрифта
+		FALSE,		// Курсив
+		TRUE,		// Подчеркивание
+		FALSE,		// Зачеркивание
+		DEFAULT_CHARSET,			// Набор символов
+		OUT_DEFAULT_PRECIS,			// Точность вывода
+		CLIP_DEFAULT_PRECIS,		// Точность отсечения
+		DEFAULT_QUALITY,			// Качество шрифта
+		DEFAULT_PITCH | FF_SWISS,	// Начертание шрифта
+		L"Arial"	// Имя шрифта
+	);
+	
+	SendMessageW(GetDlgItem(GetDlgItem(hWnd, IDPane1), IDPane1EditRes), WM_SETFONT, (WPARAM)hFont, 0);
+
 	// Создание контролов для 2-ой панели
 	CreateWindow(
 		L"STATIC",
@@ -335,6 +355,7 @@ void InitializeUI(HWND hWnd)
 		hInst,
 		nullptr);
 	SendMessageW(GetDlgItem(hWnd, IDPane2EditCode), EM_LIMITTEXT, MAX_EDITSTRING, 0);
+	SendMessageW(GetDlgItem(GetDlgItem(hWnd, IDPane2), IDPane2EditCode), WM_SETFONT, (WPARAM)hFont, 0);
 
 	CreateWindowW(
 		L"EDIT",
@@ -349,6 +370,7 @@ void InitializeUI(HWND hWnd)
 		hInst,
 		nullptr);
 	SendMessageW(GetDlgItem(hWnd, IDPane2EditText), EM_LIMITTEXT, MAX_EDITSTRING, 0);
+	SendMessageW(GetDlgItem(GetDlgItem(hWnd, IDPane2), IDPane2EditText), WM_SETFONT, (WPARAM)hFont, 0);
 
 	// Создание контролов для 3-ой панели
 	CreateWindowW(
@@ -364,6 +386,7 @@ void InitializeUI(HWND hWnd)
 		hInst,
 		nullptr);
 	SendMessageW(GetDlgItem(hWnd, IDPane3EditText), EM_LIMITTEXT, MAX_EDITSTRING, 0);
+	SendMessageW(GetDlgItem(GetDlgItem(hWnd, IDPane3), IDPane3EditText), WM_SETFONT, (WPARAM)hFont, 0);
 
 	CreateWindowW(
 		L"EDIT",
@@ -378,6 +401,7 @@ void InitializeUI(HWND hWnd)
 		hInst,
 		nullptr);
 	SendMessageW(GetDlgItem(hWnd, IDPane3EditCode), EM_LIMITTEXT, MAX_EDITSTRING, 0);
+	SendMessageW(GetDlgItem(GetDlgItem(hWnd, IDPane3), IDPane3EditCode), WM_SETFONT, (WPARAM)hFont, 0);
 
 	CreateWindow(
 		L"BUTTON",
@@ -470,6 +494,8 @@ void InitializeUI(HWND hWnd)
 		(HMENU)IDPane4Picture,
 		hInst,
 		nullptr);
+
+	DeleteObject(hFont);
 
 	SelectPane(hWnd, IDPane1);
 }
@@ -1137,17 +1163,17 @@ void ChangeEditCode(HWND& hWnd)
 	{
 		morseCode += buffer[i];
 	}
+
 	morseChar = morse.morseToChar(morseCode);
 	if (morseChar.length() != 0)
 	{
-		for (size_t i = 0; i < morseChar.length() - 1; i++)
+		int j = 0;
+		for (size_t i = 0; i < morseChar.size(); i++)
 		{
 			buffer[i] = morseChar[i];
-			if (i == morseChar.length() - 2)
-			{
-				buffer[i + 1] = '\0';
-			}
+			j = i;
 		}
+		buffer[j + 1] = '\0';
 		SetWindowTextW(GetDlgItem(hWnd, IDPane3EditText), buffer);
 	}
 	else

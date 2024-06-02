@@ -272,6 +272,10 @@ std::vector<std::pair<float, float>> Morse—ode::findWidePeaks(std::vector<float>
 	std::vector<std::pair<float, float>> peak_ranges;
 	std::vector<std::pair<float, float>> wide_peak_ranges;
 
+	if (peaks.empty()) {
+		return wide_peak_ranges;
+	}
+
 	for (int i = 0; i < peaks.size() - 1; ++i) {
 		if (time[peaks[i]] >= timeStart && time[peaks[i]] <= timeEnd) {
 			if (time[peaks[i + 1]] - time[peaks[i]] <= period) {
@@ -302,6 +306,10 @@ std::vector<std::pair<float, float>> Morse—ode::findWidePeaks(std::vector<float>
 std::vector<std::pair<char, float>> Morse—ode::findPeakDurations(std::vector<std::pair<float, float>>& widePeaks, float precision)
 {
 	std::vector<std::pair<char, float>> peak_durations;
+	if (widePeaks.empty()) {
+		return peak_durations;
+	}
+
 	for (size_t i = 0; i < widePeaks.size(); ++i) {
 		float duration = std::round((widePeaks[i].second - widePeaks[i].first) * std::pow(10, precision)) / std::pow(10, precision);
 		peak_durations.push_back(std::make_pair('s', duration));
@@ -325,12 +333,10 @@ float Morse—ode::getThreshold() const
 	return _threshold;
 };
 
-void Morse—ode::playMorseCode(std::wstring& morseCode)
+void Morse—ode::playMorseCode(std::wstring& morseCode, int frequency)
 {
 	std::vector<std::wstring> words = Split(morseCode, _sepWord);
 	std::vector<std::wstring> symbols;
-
-	int frequency = 900;
 
 	for (std::wstring word : words)
 	{
